@@ -1,0 +1,41 @@
+# Rust
+target/
+**/*.rs.bk
+
+# JavaScript / Node / Next.js
+node_modules/
+.next/
+dist/
+out/
+build/
+.pnpm-store/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Environment and local secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Docker and local storage volumes
+pg-data/
+minio-data/
+
+# Generated fixtures
+fixtures/generated/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
