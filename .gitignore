@@ -28,8 +28,11 @@ __pycache__/
 pg-data/
 minio-data/
 
-# Generated fixtures
+# Generated fixtures and media outputs
 fixtures/generated/
+fixtures/images/
+*.mp4
+*.opus
 
 # OS and Editor files
 .DS_Store

@@ -3,6 +3,12 @@
 //! Zero file, network, clock, or database I/O to guarantee deterministic execution
 //! natively and when compiled to WebAssembly.
 
+pub mod effects;
+pub mod fit;
+pub mod motion;
+pub mod segmentation;
+pub mod timing;
+
 pub fn engine_version() -> &'static str {
     env!("CARGO_PKG_VERSION")
 }
