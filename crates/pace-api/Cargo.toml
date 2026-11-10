@@ -1,0 +1,49 @@
+[package]
+name = "pace-api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Internal workspace crates
+pace-db = { path = "../pace-db" }
+
+# Web framework and async runtime
+axum = { version = "0.8", features = ["macros"] }
+tokio = { version = "1.43", features = ["full"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = [
+    "cors",
+    "trace",
+    "compression-gzip",
+    "request-id",
+    "set-header",
+] }
+axum-extra = { version = "0.10", features = ["cookie"] }
+
+# Serialization and errors
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+
+# Logging and diagnostics
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# OpenAPI documentation
+utoipa = { version = "5.3", features = ["axum_extras", "uuid"] }
+
+# Identifiers & Types
+uuid = { version = "1.15", features = ["v7", "v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+http = "1.2"
+dotenvy = "0.15"
+
+# Security and Cryptography (for Step 3)
+argon2 = "0.5"
+rand = "0.8"
+sha2 = "0.10"
+subtle = "2.6"
+
+[dev-dependencies]
+reqwest = { version = "0.12", features = ["json", "cookies"] }
+http-body-util = "0.1"

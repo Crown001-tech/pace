@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "crates/pace-engine",
     "crates/pace-db",
+    "crates/pace-api",
     "learning/exercises/render-spike",
 ]
 
