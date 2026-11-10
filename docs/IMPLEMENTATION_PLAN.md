@@ -95,10 +95,10 @@ flowchart TD
 
 | Milestone | Name | Core Deliverable | Cost | Status |
 | :---: | :--- | :--- | :---: | :---: |
-| **M0** | **Setup & First Experiments** | Docker runs Postgres & MinIO; Groq & browser uploads proven | **$0** | **In Progress** |
-| **M1** | **The Engine Core** | Pure Rust engine calculates timing, camera motion, fit | **$0** | Up Next |
-| **M2** | **Accounts & Projects API** | Axum API with auth, multi-tenant isolation, version checks | **$0** | Planned |
-| **M3** | **Web App: Script & Sections** | Next.js dashboard & script editor with autosave & undo | **$0** | Planned |
+| **M0** | **Setup & First Experiments** | Docker runs Postgres & MinIO; Groq & browser uploads proven | **$0** | **Complete** |
+| **M1** | **The Engine Core** | Pure Rust engine calculates timing, camera motion, fit | **$0** | **Complete** |
+| **M2** | **Accounts & Projects API** | Axum API with auth, multi-tenant isolation, version checks | **$0** | **Complete** |
+| **M3** | **Web App: Script & Sections** | Next.js dashboard & script editor with autosave & undo | **$0** | **Up Next** |
 | **M4** | **Media Upload & Assignment** | Hundreds of images upload to storage with natural sorting | **$0** | Planned |
 | **M5** | **Narration & Sync** | Python worker transcribes speech & aligns to script with flags | **$0** | Planned |
 | **M6** | **Timeline Editor** | Draggable boundaries on waveform with pause snapping | **$0** | Planned |
@@ -241,8 +241,8 @@ flowchart TD
 - Stale `If-Match` version returns `409 PROJECT_VERSION_CONFLICT`.
 
 #### Done When Checklist
-- [ ] Full user and project lifecycle functional via curl/Bruno against local PostgreSQL.
-- [ ] All API integration tests pass in CI.
+- [x] Full user and project lifecycle functional via curl/Bruno against local PostgreSQL.
+- [x] All API integration tests pass in CI.
 
 ---
 
