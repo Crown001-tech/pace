@@ -2,17 +2,12 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, sqlx::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default, sqlx::Type)]
 #[sqlx(type_name = "text", rename_all = "snake_case")]
 pub enum UserRole {
     Admin,
+    #[default]
     Creator,
-}
-
-impl Default for UserRole {
-    fn default() -> Self {
-        Self::Creator
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, sqlx::FromRow)]

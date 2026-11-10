@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 /// RFC 9457 Problem Details payload.
 /// Returned for all 4xx and 5xx API errors with Content-Type: application/problem+json.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, utoipa::ToSchema)]
 pub struct ProblemDetails {
     #[serde(rename = "type")]
     pub problem_type: String,
@@ -126,10 +126,23 @@ pub enum ApiError {
     ServiceUnavailable(String),
 
     #[error("Database error: {0}")]
-    Database(#[from] pace_db::DbError),
+    Database(pace_db::DbError),
 
     #[error("Internal server error: {0}")]
     Internal(String),
+}
+
+impl From<pace_db::DbError> for ApiError {
+    fn from(err: pace_db::DbError) -> Self {
+        match err {
+            pace_db::DbError::NotFound => ApiError::NotFound("Resource not found".to_string()),
+            pace_db::DbError::VersionConflict { actual, .. } => ApiError::ProjectVersionConflict {
+                current_version: actual,
+            },
+            pace_db::DbError::AccountLocked => ApiError::AccountLocked,
+            other => ApiError::Database(other),
+        }
+    }
 }
 
 impl ApiError {
@@ -208,10 +221,7 @@ mod tests {
             problem.problem_type,
             "https://pace.video/errors/PROJECT_VERSION_CONFLICT"
         );
-        assert_eq!(
-            problem.instance,
-            Some("/api/v1/projects/123".to_string())
-        );
+        assert_eq!(problem.instance, Some("/api/v1/projects/123".to_string()));
     }
 
     #[test]
@@ -223,4 +233,3 @@ mod tests {
         assert_eq!(problem.detail, "An unexpected internal error occurred.");
     }
 }
-

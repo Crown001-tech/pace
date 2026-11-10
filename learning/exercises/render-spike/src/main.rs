@@ -19,6 +19,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::time::Instant;
 
+#[allow(dead_code)]
 struct BenchmarkResult {
     name: &'static str,
     width: u32,
@@ -42,7 +43,11 @@ fn run_benchmark(
 ) -> Result<BenchmarkResult, Box<dyn std::error::Error>> {
     println!("\n========================================================");
     println!("  Starting Benchmark: {} ({}x{})", name, width, height);
-    println!("  Total frames: {} ({}s at 30 fps)", total_frames, total_frames / 30);
+    println!(
+        "  Total frames: {} ({}s at 30 fps)",
+        total_frames,
+        total_frames / 30
+    );
     println!("========================================================");
 
     let output_path = output_dir.join(format!("output_{}.mp4", name));
@@ -71,25 +76,44 @@ fn run_benchmark(
     let mut ffmpeg = Command::new("ffmpeg")
         .args([
             "-y",
-            "-f", "rawvideo",
-            "-pix_fmt", "rgba",
-            "-s", &format!("{}x{}", width, height),
-            "-r", "30",
-            "-i", "-",
-            "-c:v", "libx264",
-            "-preset", "veryfast",
-            "-profile:v", "high",
-            "-pix_fmt", "yuv420p",
-            "-r", "30",
-            "-crf", crf,
-            "-maxrate", maxrate,
-            "-bufsize", bufsize,
-            "-g", "60",
-            "-keyint_min", "30",
-            "-sc_threshold", "0",
-            "-bf", "2",
-            "-x264-params", "open-gop=0",
-            "-video_track_timescale", "15360",
+            "-f",
+            "rawvideo",
+            "-pix_fmt",
+            "rgba",
+            "-s",
+            &format!("{}x{}", width, height),
+            "-r",
+            "30",
+            "-i",
+            "-",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "veryfast",
+            "-profile:v",
+            "high",
+            "-pix_fmt",
+            "yuv420p",
+            "-r",
+            "30",
+            "-crf",
+            crf,
+            "-maxrate",
+            maxrate,
+            "-bufsize",
+            bufsize,
+            "-g",
+            "60",
+            "-keyint_min",
+            "30",
+            "-sc_threshold",
+            "0",
+            "-bf",
+            "2",
+            "-x264-params",
+            "open-gop=0",
+            "-video_track_timescale",
+            "15360",
             output_path.to_str().unwrap(),
         ])
         .stdin(Stdio::piped())
@@ -114,12 +138,8 @@ fn run_benchmark(
         let crop = calculate_fill_crop(src_size, frame_size, focal, cam);
 
         // 2. Crop & resize with SIMD
-        let options = ResizeOptions::new().crop(
-            crop.x as f64,
-            crop.y as f64,
-            crop.w as f64,
-            crop.h as f64,
-        );
+        let options =
+            ResizeOptions::new().crop(crop.x as f64, crop.y as f64, crop.w as f64, crop.h as f64);
         resizer.resize(src_image, &mut dst_image, &options)?;
 
         // 3. Pipe raw RGBA frame to FFmpeg
@@ -144,7 +164,12 @@ fn run_benchmark(
     let status = ffmpeg.wait_with_output()?;
     if !status.status.success() {
         let stderr = String::from_utf8_lossy(&status.stderr);
-        return Err(format!("FFmpeg failed with exit code {:?}: {}", status.status.code(), stderr).into());
+        return Err(format!(
+            "FFmpeg failed with exit code {:?}: {}",
+            status.status.code(),
+            stderr
+        )
+        .into());
     }
 
     let total_secs = start_time.elapsed().as_secs_f64();
@@ -157,8 +182,15 @@ fn run_benchmark(
     println!("\n  Results for {}:", name);
     println!("    Total time:       {:.2} seconds", total_secs);
     println!("    Average speed:    {:.1} FPS", avg_fps);
-    println!("    Real-time factor: {:.2}x ({:.2}x real-time)", realtime_factor, realtime_factor);
-    println!("    Est. 22-min video:{:.1} minutes ({:.1}s)", est_22min_secs / 60.0, est_22min_secs);
+    println!(
+        "    Real-time factor: {:.2}x ({:.2}x real-time)",
+        realtime_factor, realtime_factor
+    );
+    println!(
+        "    Est. 22-min video:{:.1} minutes ({:.1}s)",
+        est_22min_secs / 60.0,
+        est_22min_secs
+    );
 
     Ok(BenchmarkResult {
         name,

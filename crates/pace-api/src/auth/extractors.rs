@@ -93,7 +93,8 @@ impl FromRequestParts<AppState> for AuthContext {
         // If must_change_password is true, only password change and logout endpoints are permitted
         if user.must_change_password {
             let path = parts.uri.path();
-            let is_allowed_during_pw_change = path.ends_with("/password") || path.ends_with("/logout");
+            let is_allowed_during_pw_change =
+                path.ends_with("/password") || path.ends_with("/logout");
             if !is_allowed_during_pw_change {
                 return Err(ApiError::PasswordChangeRequired);
             }

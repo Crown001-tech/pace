@@ -1,8 +1,8 @@
-use std::net::SocketAddr;
 use pace_api::{
     app::{create_app, AppState},
     config::AppConfig,
 };
+use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]

@@ -22,9 +22,8 @@ impl AppConfig {
             .parse::<u16>()
             .map_err(|e| format!("Invalid API_PORT: {e}"))?;
 
-        let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| {
-            "postgres://pace:pace@localhost:5432/pace".to_string()
-        });
+        let database_url = env::var("DATABASE_URL")
+            .unwrap_or_else(|_| "postgres://pace:pace@localhost:5432/pace".to_string());
 
         let session_secret = env::var("SESSION_SECRET").unwrap_or_else(|_| {
             "local-development-session-secret-change-in-production-min-32-chars".to_string()
@@ -34,7 +33,8 @@ impl AppConfig {
             return Err("SESSION_SECRET must be at least 32 characters in production".to_string());
         }
 
-        let cors_origin = env::var("CORS_ORIGIN").unwrap_or_else(|_| "http://localhost:3000".to_string());
+        let cors_origin =
+            env::var("CORS_ORIGIN").unwrap_or_else(|_| "http://localhost:3000".to_string());
 
         Ok(Self {
             pace_env,
@@ -46,4 +46,3 @@ impl AppConfig {
         })
     }
 }
-

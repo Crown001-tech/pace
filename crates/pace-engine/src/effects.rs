@@ -87,17 +87,17 @@ fn calculate_preset_weight(preset: MotionPreset, focal: FocalPoint) -> u32 {
             MotionPreset::PanRight
             | MotionPreset::ZoomInPanRight
             | MotionPreset::ZoomOutPanRight => weight += 25,
-            MotionPreset::PanLeft
-            | MotionPreset::ZoomInPanLeft
-            | MotionPreset::ZoomOutPanLeft => weight = weight.saturating_sub(8).max(2),
+            MotionPreset::PanLeft | MotionPreset::ZoomInPanLeft | MotionPreset::ZoomOutPanLeft => {
+                weight = weight.saturating_sub(8).max(2)
+            }
             _ => {}
         }
     } else if focal.x > 0.55 {
         // Focal on right -> more image on left -> lean towards PanLeft
         match preset {
-            MotionPreset::PanLeft
-            | MotionPreset::ZoomInPanLeft
-            | MotionPreset::ZoomOutPanLeft => weight += 25,
+            MotionPreset::PanLeft | MotionPreset::ZoomInPanLeft | MotionPreset::ZoomOutPanLeft => {
+                weight += 25
+            }
             MotionPreset::PanRight
             | MotionPreset::ZoomInPanRight
             | MotionPreset::ZoomOutPanRight => weight = weight.saturating_sub(8).max(2),
@@ -109,23 +109,23 @@ fn calculate_preset_weight(preset: MotionPreset, focal: FocalPoint) -> u32 {
     if focal.y < 0.45 {
         // Focal near top -> more image below -> lean towards PanDown
         match preset {
-            MotionPreset::PanDown
-            | MotionPreset::ZoomInPanDown
-            | MotionPreset::ZoomOutPanDown => weight += 25,
-            MotionPreset::PanUp
-            | MotionPreset::ZoomInPanUp
-            | MotionPreset::ZoomOutPanUp => weight = weight.saturating_sub(8).max(2),
+            MotionPreset::PanDown | MotionPreset::ZoomInPanDown | MotionPreset::ZoomOutPanDown => {
+                weight += 25
+            }
+            MotionPreset::PanUp | MotionPreset::ZoomInPanUp | MotionPreset::ZoomOutPanUp => {
+                weight = weight.saturating_sub(8).max(2)
+            }
             _ => {}
         }
     } else if focal.y > 0.55 {
         // Focal near bottom -> more image above -> lean towards PanUp
         match preset {
-            MotionPreset::PanUp
-            | MotionPreset::ZoomInPanUp
-            | MotionPreset::ZoomOutPanUp => weight += 25,
-            MotionPreset::PanDown
-            | MotionPreset::ZoomInPanDown
-            | MotionPreset::ZoomOutPanDown => weight = weight.saturating_sub(8).max(2),
+            MotionPreset::PanUp | MotionPreset::ZoomInPanUp | MotionPreset::ZoomOutPanUp => {
+                weight += 25
+            }
+            MotionPreset::PanDown | MotionPreset::ZoomInPanDown | MotionPreset::ZoomOutPanDown => {
+                weight = weight.saturating_sub(8).max(2)
+            }
             _ => {}
         }
     }
@@ -287,11 +287,7 @@ mod tests {
                 p2,
                 i
             );
-            assert_ne!(
-                p2, p1,
-                "Preset {:?} matched previous scene at {}",
-                p2, i
-            );
+            assert_ne!(p2, p1, "Preset {:?} matched previous scene at {}", p2, i);
             assert_ne!(
                 p2, p0,
                 "Preset {:?} matched scene 2 steps back at {}",
@@ -310,7 +306,7 @@ mod tests {
             *counts.entry(a.preset).or_insert(0usize) += 1;
         }
 
-        let max_allowed = ((50 as f32) * MAX_PRESET_FREQUENCY_RATIO).ceil() as usize;
+        let max_allowed = (50.0_f32 * MAX_PRESET_FREQUENCY_RATIO).ceil() as usize;
         for (preset, count) in counts {
             assert!(
                 count <= max_allowed,
@@ -342,7 +338,10 @@ mod tests {
             }
         }
         // Shake is 1/8 (~12.5%). Over 100 scenes, should be roughly 8..20.
-        assert!(shake_count >= 5 && shake_count <= 25, "Shake count was {shake_count}");
+        assert!(
+            (5..=25).contains(&shake_count),
+            "Shake count was {shake_count}"
+        );
     }
 
     #[test]

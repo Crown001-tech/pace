@@ -118,7 +118,8 @@ mod tests {
 
     #[test]
     fn handles_windows_crlf_line_endings() {
-        let script = "Scene one text.\r\n\r\nScene two text.\r\nStill scene two.\r\n\r\nScene three text.";
+        let script =
+            "Scene one text.\r\n\r\nScene two text.\r\nStill scene two.\r\n\r\nScene three text.";
         let sections = split_script(script);
         assert_eq!(
             sections,

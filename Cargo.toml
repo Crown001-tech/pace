@@ -5,6 +5,7 @@ members = [
     "crates/pace-db",
     "crates/pace-api",
     "learning/exercises/render-spike",
+    "xtask",
 ]
 
 [profile.dev.package."*"]

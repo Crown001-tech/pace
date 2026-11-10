@@ -77,10 +77,25 @@ pub fn create_app(state: AppState) -> Router {
             post(routes::admin::admin_reset_password),
         );
 
+    // Project routes
+    let project_routes = Router::new()
+        .route(
+            "/",
+            post(routes::projects::create_project_handler)
+                .get(routes::projects::list_projects_handler),
+        )
+        .route(
+            "/{id}",
+            get(routes::projects::get_project_handler)
+                .patch(routes::projects::update_project_handler)
+                .delete(routes::projects::delete_project_handler),
+        );
+
     // /api/v1 router
     let api_v1 = Router::new()
         .nest("/auth", auth_routes)
-        .nest("/admin", admin_routes);
+        .nest("/admin", admin_routes)
+        .nest("/projects", project_routes);
 
     Router::new()
         .route("/healthz", get(routes::health::healthz))

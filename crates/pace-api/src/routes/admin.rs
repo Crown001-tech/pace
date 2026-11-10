@@ -8,17 +8,18 @@ use pace_db::{
     create_user, delete_all_user_sessions, find_user_by_id, list_users, reset_user_password,
     set_user_active, CreateUser,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::{
     app::AppState,
     auth::{extractors::RequireAdmin, passwords::hash_password},
-    error::ApiError,
+    error::{ApiError, ProblemDetails},
     routes::auth::{MessageResponse, UserProfile},
 };
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 pub struct CreateUserRequest {
     pub email: String,
     pub name: String,
@@ -27,18 +28,29 @@ pub struct CreateUserRequest {
     pub storage_quota_bytes: Option<i64>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 pub struct UpdateUserStatusRequest {
     pub is_active: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 pub struct ResetPasswordRequest {
     pub temporary_password: String,
 }
 
 /// POST /api/v1/admin/users
 /// Creates a new user with a temporary password and quota. Requires admin role.
+#[utoipa::path(
+    post,
+    path = "/api/v1/admin/users",
+    tag = "Admin",
+    request_body = CreateUserRequest,
+    responses(
+        (status = 201, description = "User created successfully", body = UserProfile),
+        (status = 400, description = "Validation error", body = ProblemDetails),
+        (status = 403, description = "Admin role required", body = ProblemDetails)
+    )
+)]
 pub async fn create_new_user(
     State(state): State<AppState>,
     _admin: RequireAdmin,
@@ -82,6 +94,15 @@ pub async fn create_new_user(
 
 /// GET /api/v1/admin/users
 /// Lists all registered users.
+#[utoipa::path(
+    get,
+    path = "/api/v1/admin/users",
+    tag = "Admin",
+    responses(
+        (status = 200, description = "List of all registered users", body = Vec<UserProfile>),
+        (status = 403, description = "Admin role required", body = ProblemDetails)
+    )
+)]
 pub async fn get_all_users(
     State(state): State<AppState>,
     _admin: RequireAdmin,
@@ -103,8 +124,22 @@ pub async fn get_all_users(
     Ok((StatusCode::OK, Json(profiles)))
 }
 
-/// PATCH /api/v1/admin/users/:id
+/// PATCH /api/v1/admin/users/{id}
 /// Activates or deactivates a user. If deactivated, immediately terminates all active sessions (AUTH-04).
+#[utoipa::path(
+    patch,
+    path = "/api/v1/admin/users/{id}",
+    tag = "Admin",
+    params(
+        ("id" = Uuid, Path, description = "User UUID")
+    ),
+    request_body = UpdateUserStatusRequest,
+    responses(
+        (status = 200, description = "User status updated", body = UserProfile),
+        (status = 404, description = "User not found", body = ProblemDetails),
+        (status = 403, description = "Admin role required", body = ProblemDetails)
+    )
+)]
 pub async fn update_user_status(
     State(state): State<AppState>,
     _admin: RequireAdmin,
@@ -136,9 +171,23 @@ pub async fn update_user_status(
     ))
 }
 
-/// POST /api/v1/admin/users/:id/reset-password
+/// POST /api/v1/admin/users/{id}/reset-password
 /// Resets a user's password to a temporary password, flags must_change_password = true,
 /// and terminates all active sessions.
+#[utoipa::path(
+    post,
+    path = "/api/v1/admin/users/{id}/reset-password",
+    tag = "Admin",
+    params(
+        ("id" = Uuid, Path, description = "User UUID")
+    ),
+    request_body = ResetPasswordRequest,
+    responses(
+        (status = 200, description = "Password reset successfully", body = MessageResponse),
+        (status = 400, description = "Validation error", body = ProblemDetails),
+        (status = 403, description = "Admin role required", body = ProblemDetails)
+    )
+)]
 pub async fn admin_reset_password(
     State(state): State<AppState>,
     _admin: RequireAdmin,

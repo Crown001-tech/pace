@@ -10,19 +10,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         port: 8080,
         database_url: env::var("DATABASE_URL")
             .unwrap_or_else(|_| "postgres://pace:pace@localhost:5432/pace".to_string()),
-        session_secret: "local-development-session-secret-change-in-production-min-32-chars".to_string(),
+        session_secret: "local-development-session-secret-change-in-production-min-32-chars"
+            .to_string(),
         cors_origin: "http://localhost:3000".to_string(),
     });
 
     let pool = create_pool(&config.database_url).await?;
     run_migrations(&pool).await?;
 
-    let email = env::args().nth(1).unwrap_or_else(|| "admin@pace.local".to_string());
-    let password = env::args().nth(2).unwrap_or_else(|| "AdminPassword123!".to_string());
-    let name = env::args().nth(3).unwrap_or_else(|| "System Administrator".to_string());
+    let email = env::args()
+        .nth(1)
+        .unwrap_or_else(|| "admin@pace.local".to_string());
+    let password = env::args()
+        .nth(2)
+        .unwrap_or_else(|| "AdminPassword123!".to_string());
+    let name = env::args()
+        .nth(3)
+        .unwrap_or_else(|| "System Administrator".to_string());
 
     if let Some(existing) = find_user_by_email(&pool, &email).await? {
-        println!("User with email '{}' already exists (ID: {})", email, existing.id);
+        println!(
+            "User with email '{}' already exists (ID: {})",
+            email, existing.id
+        );
         return Ok(());
     }
 

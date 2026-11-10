@@ -153,10 +153,7 @@ pub fn boundaries_to_frames(boundaries: &[Boundary], fps: u32) -> Vec<u32> {
 /// - `boundaries.last().time_ms == narration_ms`.
 /// - Monotonically non-decreasing times.
 /// - Every scene is at least `MIN_SCENE_DURATION_MS` (`500 ms`) unless `allow_zero_length` is true.
-pub fn validate_boundaries(
-    boundaries: &[Boundary],
-    narration_ms: u64,
-) -> Result<(), TimingError> {
+pub fn validate_boundaries(boundaries: &[Boundary], narration_ms: u64) -> Result<(), TimingError> {
     if boundaries.len() < 2 {
         return Err(TimingError::TooFewBoundaries {
             count: boundaries.len(),
@@ -244,11 +241,7 @@ pub fn compute_timeline_frames(
         let right_active = (s + 1) < scene_count && is_active_transition(&boundaries[s + 1]);
         let touching = (left_active as u32) + (right_active as u32);
         let available = scenes[s].frame_count.saturating_sub(MIN_SCENE_BODY_FRAMES);
-        max_half_for_scene[s] = if touching > 0 {
-            available / touching
-        } else {
-            available
-        };
+        max_half_for_scene[s] = available.checked_div(touching).unwrap_or(available);
     }
 
     let mut transitions = Vec::new();
@@ -355,11 +348,7 @@ mod tests {
         );
 
         // Scene shorter than 500 ms (and not unspoken) -> error
-        let too_short = vec![
-            Boundary::new(0),
-            Boundary::new(400),
-            Boundary::new(10_000),
-        ];
+        let too_short = vec![Boundary::new(0), Boundary::new(400), Boundary::new(10_000)];
         assert_eq!(
             validate_boundaries(&too_short, narration_ms),
             Err(TimingError::SceneTooShort {
@@ -437,7 +426,10 @@ mod tests {
             assert_eq!(t.duration_frames % 2, 0, "transition frames must be even");
             assert_eq!(t.center_frame - t.start_frame, t.duration_frames / 2);
             assert_eq!(t.end_frame - t.center_frame, t.duration_frames / 2);
-            assert!(t.shortened, "30-frame transition must be shortened for 15-frame scene");
+            assert!(
+                t.shortened,
+                "30-frame transition must be shortened for 15-frame scene"
+            );
         }
 
         // Verify Scene 1 keeps at least 6 body frames on its own

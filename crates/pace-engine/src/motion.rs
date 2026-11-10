@@ -218,31 +218,23 @@ pub fn build_motion(
 
             let (from_cx, to_cx, from_cy, to_cy) = match preset {
                 MotionPreset::PanRight => {
-                    let (fcx, tcx) = fit_range_in_bounds(
-                        focal.x - travel * 0.5,
-                        focal.x + travel * 0.5,
-                    );
+                    let (fcx, tcx) =
+                        fit_range_in_bounds(focal.x - travel * 0.5, focal.x + travel * 0.5);
                     (fcx, tcx, focal.y, focal.y)
                 }
                 MotionPreset::PanLeft => {
-                    let (fcx, tcx) = fit_range_in_bounds(
-                        focal.x + travel * 0.5,
-                        focal.x - travel * 0.5,
-                    );
+                    let (fcx, tcx) =
+                        fit_range_in_bounds(focal.x + travel * 0.5, focal.x - travel * 0.5);
                     (fcx, tcx, focal.y, focal.y)
                 }
                 MotionPreset::PanDown => {
-                    let (fcy, tcy) = fit_range_in_bounds(
-                        focal.y - travel * 0.5,
-                        focal.y + travel * 0.5,
-                    );
+                    let (fcy, tcy) =
+                        fit_range_in_bounds(focal.y - travel * 0.5, focal.y + travel * 0.5);
                     (focal.x, focal.x, fcy, tcy)
                 }
                 MotionPreset::PanUp => {
-                    let (fcy, tcy) = fit_range_in_bounds(
-                        focal.y + travel * 0.5,
-                        focal.y - travel * 0.5,
-                    );
+                    let (fcy, tcy) =
+                        fit_range_in_bounds(focal.y + travel * 0.5, focal.y - travel * 0.5);
                     (focal.x, focal.x, fcy, tcy)
                 }
                 _ => unreachable!(),
@@ -266,31 +258,23 @@ pub fn build_motion(
 
             let (from_cx, to_cx, from_cy, to_cy) = match preset {
                 MotionPreset::ZoomInPanRight => {
-                    let (fcx, tcx) = fit_range_in_bounds(
-                        focal.x - travel * 0.5,
-                        focal.x + travel * 0.5,
-                    );
+                    let (fcx, tcx) =
+                        fit_range_in_bounds(focal.x - travel * 0.5, focal.x + travel * 0.5);
                     (fcx, tcx, focal.y, focal.y)
                 }
                 MotionPreset::ZoomInPanLeft => {
-                    let (fcx, tcx) = fit_range_in_bounds(
-                        focal.x + travel * 0.5,
-                        focal.x - travel * 0.5,
-                    );
+                    let (fcx, tcx) =
+                        fit_range_in_bounds(focal.x + travel * 0.5, focal.x - travel * 0.5);
                     (fcx, tcx, focal.y, focal.y)
                 }
                 MotionPreset::ZoomInPanDown => {
-                    let (fcy, tcy) = fit_range_in_bounds(
-                        focal.y - travel * 0.5,
-                        focal.y + travel * 0.5,
-                    );
+                    let (fcy, tcy) =
+                        fit_range_in_bounds(focal.y - travel * 0.5, focal.y + travel * 0.5);
                     (focal.x, focal.x, fcy, tcy)
                 }
                 MotionPreset::ZoomInPanUp => {
-                    let (fcy, tcy) = fit_range_in_bounds(
-                        focal.y + travel * 0.5,
-                        focal.y - travel * 0.5,
-                    );
+                    let (fcy, tcy) =
+                        fit_range_in_bounds(focal.y + travel * 0.5, focal.y - travel * 0.5);
                     (focal.x, focal.x, fcy, tcy)
                 }
                 _ => unreachable!(),
@@ -314,31 +298,23 @@ pub fn build_motion(
 
             let (from_cx, to_cx, from_cy, to_cy) = match preset {
                 MotionPreset::ZoomOutPanRight => {
-                    let (fcx, tcx) = fit_range_in_bounds(
-                        focal.x - travel * 0.5,
-                        focal.x + travel * 0.5,
-                    );
+                    let (fcx, tcx) =
+                        fit_range_in_bounds(focal.x - travel * 0.5, focal.x + travel * 0.5);
                     (fcx, tcx, focal.y, focal.y)
                 }
                 MotionPreset::ZoomOutPanLeft => {
-                    let (fcx, tcx) = fit_range_in_bounds(
-                        focal.x + travel * 0.5,
-                        focal.x - travel * 0.5,
-                    );
+                    let (fcx, tcx) =
+                        fit_range_in_bounds(focal.x + travel * 0.5, focal.x - travel * 0.5);
                     (fcx, tcx, focal.y, focal.y)
                 }
                 MotionPreset::ZoomOutPanDown => {
-                    let (fcy, tcy) = fit_range_in_bounds(
-                        focal.y - travel * 0.5,
-                        focal.y + travel * 0.5,
-                    );
+                    let (fcy, tcy) =
+                        fit_range_in_bounds(focal.y - travel * 0.5, focal.y + travel * 0.5);
                     (focal.x, focal.x, fcy, tcy)
                 }
                 MotionPreset::ZoomOutPanUp => {
-                    let (fcy, tcy) = fit_range_in_bounds(
-                        focal.y + travel * 0.5,
-                        focal.y - travel * 0.5,
-                    );
+                    let (fcy, tcy) =
+                        fit_range_in_bounds(focal.y + travel * 0.5, focal.y - travel * 0.5);
                     (focal.x, focal.x, fcy, tcy)
                 }
                 _ => unreachable!(),

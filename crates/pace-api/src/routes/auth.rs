@@ -10,6 +10,7 @@ use pace_db::{
     update_user_password, CreateSession, DbError,
 };
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::{
@@ -20,16 +21,16 @@ use crate::{
         passwords::{hash_password, verify_password},
         sessions::{generate_session_token, hash_session_token},
     },
-    error::ApiError,
+    error::{ApiError, ProblemDetails},
 };
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 pub struct LoginRequest {
     pub email: String,
     pub password: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UserProfile {
     pub id: Uuid,
     pub email: String,
@@ -40,25 +41,36 @@ pub struct UserProfile {
     pub storage_used_bytes: i64,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct LoginResponse {
     pub user: UserProfile,
     pub csrf_token: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 pub struct ChangePasswordRequest {
     pub current_password: String,
     pub new_password: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct MessageResponse {
     pub status: &'static str,
     pub message: &'static str,
 }
 
 /// POST /api/v1/auth/login
+#[utoipa::path(
+    post,
+    path = "/api/v1/auth/login",
+    tag = "Auth",
+    request_body = LoginRequest,
+    responses(
+        (status = 200, description = "Logged in successfully", body = LoginResponse),
+        (status = 401, description = "Invalid credentials", body = ProblemDetails),
+        (status = 429, description = "Account locked", body = ProblemDetails)
+    )
+)]
 pub async fn login(
     State(state): State<AppState>,
     headers: HeaderMap,
@@ -71,72 +83,72 @@ pub async fn login(
         return Err(ApiError::AccountLocked);
     }
 
-    // 2. Lookup user and verify password
-    let user_opt = find_user_by_email(&state.db, email).await?;
-    let is_valid = match &user_opt {
-        Some(user) => verify_password(&payload.password, &user.password_hash)?,
-        None => false,
+    // 2. Fetch user
+    let user = match find_user_by_email(&state.db, email).await? {
+        Some(u) => u,
+        None => {
+            record_login_attempt(&state.db, email, false).await?;
+            return Err(ApiError::InvalidCredentials);
+        }
     };
 
-    if !is_valid {
+    // If deactivated, fail silently with invalid credentials (or account locked)
+    if !user.is_active {
         record_login_attempt(&state.db, email, false).await?;
         return Err(ApiError::InvalidCredentials);
     }
 
-    let user = user_opt.unwrap();
-    if !user.is_active {
-        return Err(ApiError::Forbidden("Account is deactivated".into()));
+    // 3. Verify Argon2id password
+    let valid = verify_password(&payload.password, &user.password_hash)?;
+    record_login_attempt(&state.db, email, valid).await?;
+
+    if !valid {
+        return Err(ApiError::InvalidCredentials);
     }
 
-    // 3. Record successful login attempt
-    record_login_attempt(&state.db, email, true).await?;
-
-    // 4. Create new 30-day session
-    let raw_token = generate_session_token();
-    let token_hash = hash_session_token(&raw_token);
+    // 4. Create 30-day session
+    let session_token = generate_session_token();
+    let token_hash = hash_session_token(&session_token);
     let expires_at = Utc::now() + Duration::days(30);
-
-    let user_agent = headers
-        .get(header::USER_AGENT)
-        .and_then(|h| h.to_str().ok())
-        .map(|s| s.to_string());
 
     create_session(
         &state.db,
         CreateSession {
             user_id: user.id,
             token_hash,
+            user_agent: headers
+                .get(header::USER_AGENT)
+                .and_then(|h| h.to_str().ok())
+                .map(|s| s.to_string()),
             expires_at,
-            user_agent,
         },
     )
     .await?;
 
     // 5. Derive CSRF token
-    let csrf_token = derive_csrf_token(&raw_token, &state.config.session_secret);
+    let csrf_token = derive_csrf_token(&session_token, &state.config.session_secret);
 
-    // 6. Build cookie header
+    // 6. Build response with httpOnly session cookie
     let is_prod = state.config.pace_env == "production";
     let cookie_val = format!(
-        "pace_session={raw_token}; Path=/; HttpOnly; SameSite=Lax; Max-Age={}{}",
+        "pace_session={}; Path=/; HttpOnly; SameSite=Lax; Max-Age={}{}",
+        session_token,
         30 * 24 * 60 * 60,
         if is_prod { "; Secure" } else { "" }
     );
 
-    let profile = UserProfile {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        must_change_password: user.must_change_password,
-        storage_quota_bytes: user.storage_quota_bytes,
-        storage_used_bytes: user.storage_used_bytes,
-    };
-
     let mut response = (
         StatusCode::OK,
         Json(LoginResponse {
-            user: profile,
+            user: UserProfile {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                role: user.role,
+                must_change_password: user.must_change_password,
+                storage_quota_bytes: user.storage_quota_bytes,
+                storage_used_bytes: user.storage_used_bytes,
+            },
             csrf_token,
         }),
     )
@@ -144,13 +156,23 @@ pub async fn login(
 
     response.headers_mut().insert(
         header::SET_COOKIE,
-        cookie_val.parse().map_err(|e| ApiError::Internal(format!("Invalid cookie header: {e}")))?,
+        cookie_val
+            .parse()
+            .map_err(|e| ApiError::Internal(format!("Invalid cookie header: {e}")))?,
     );
 
     Ok(response)
 }
 
 /// POST /api/v1/auth/logout
+#[utoipa::path(
+    post,
+    path = "/api/v1/auth/logout",
+    tag = "Auth",
+    responses(
+        (status = 200, description = "Logged out successfully", body = MessageResponse)
+    )
+)]
 pub async fn logout(
     State(state): State<AppState>,
     auth: AuthContext,
@@ -174,13 +196,24 @@ pub async fn logout(
 
     response.headers_mut().insert(
         header::SET_COOKIE,
-        clear_cookie.parse().map_err(|e| ApiError::Internal(format!("Invalid cookie header: {e}")))?,
+        clear_cookie
+            .parse()
+            .map_err(|e| ApiError::Internal(format!("Invalid cookie header: {e}")))?,
     );
 
     Ok(response)
 }
 
 /// GET /api/v1/auth/me
+#[utoipa::path(
+    get,
+    path = "/api/v1/auth/me",
+    tag = "Auth",
+    responses(
+        (status = 200, description = "Current user profile", body = UserProfile),
+        (status = 401, description = "Unauthorized", body = ProblemDetails)
+    )
+)]
 pub async fn me(auth: AuthContext) -> impl IntoResponse {
     (
         StatusCode::OK,
@@ -197,6 +230,17 @@ pub async fn me(auth: AuthContext) -> impl IntoResponse {
 }
 
 /// POST /api/v1/auth/password
+#[utoipa::path(
+    post,
+    path = "/api/v1/auth/password",
+    tag = "Auth",
+    request_body = ChangePasswordRequest,
+    responses(
+        (status = 200, description = "Password changed successfully", body = MessageResponse),
+        (status = 400, description = "Validation error", body = ProblemDetails),
+        (status = 401, description = "Unauthorized", body = ProblemDetails)
+    )
+)]
 pub async fn change_password(
     State(state): State<AppState>,
     auth: AuthContext,
@@ -209,9 +253,7 @@ pub async fn change_password(
     }
 
     if !verify_password(&payload.current_password, &auth.user.password_hash)? {
-        return Err(ApiError::BadRequest(
-            "Current password is incorrect".into(),
-        ));
+        return Err(ApiError::BadRequest("Current password is incorrect".into()));
     }
 
     let new_hash = hash_password(&payload.new_password)?;

@@ -7,8 +7,12 @@ use uuid::Uuid;
 async fn setup_test_pool() -> sqlx::PgPool {
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://pace:pace@localhost:5432/pace".to_string());
-    let pool = create_pool(&database_url).await.expect("Failed to connect to test Postgres");
-    run_migrations(&pool).await.expect("Failed to run migrations");
+    let pool = create_pool(&database_url)
+        .await
+        .expect("Failed to connect to test Postgres");
+    run_migrations(&pool)
+        .await
+        .expect("Failed to run migrations");
     pool
 }
 
@@ -54,12 +58,16 @@ async fn test_login_attempts_and_10_failure_lockout() {
 
     // Record 9 failures -> still not locked
     for _ in 0..9 {
-        record_login_attempt(&pool, &email, false).await.expect("record ok");
+        record_login_attempt(&pool, &email, false)
+            .await
+            .expect("record ok");
     }
     assert!(check_lockout(&pool, &email).await.is_ok());
 
     // 10th failure -> locked!
-    record_login_attempt(&pool, &email, false).await.expect("record ok");
+    record_login_attempt(&pool, &email, false)
+        .await
+        .expect("record ok");
     let lockout_err = check_lockout(&pool, &email).await;
     assert!(matches!(lockout_err, Err(DbError::AccountLocked)));
 }
@@ -104,7 +112,9 @@ async fn test_session_lifecycle_and_invalidation() {
     assert_eq!(found.id, session.id);
 
     // Invalidate all user sessions (on password change / logout all)
-    let deleted = delete_all_user_sessions(&pool, user.id).await.expect("delete ok");
+    let deleted = delete_all_user_sessions(&pool, user.id)
+        .await
+        .expect("delete ok");
     assert_eq!(deleted, 1);
 
     let not_found = find_active_session_by_token_hash(&pool, &token_hash)
@@ -246,7 +256,10 @@ async fn test_strict_ownership_isolation() {
     let view_attempt = find_project_by_id_and_owner(&pool, project_a.id, user_b.id)
         .await
         .expect("query ok");
-    assert!(view_attempt.is_none(), "User B must not see User A's project");
+    assert!(
+        view_attempt.is_none(),
+        "User B must not see User A's project"
+    );
 
     // 2. User B tries to update User A's project -> returns NotFound
     let update_attempt = update_project(

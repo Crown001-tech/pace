@@ -1,8 +1,8 @@
+use crate::error::ApiError;
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
 };
-use crate::error::ApiError;
 
 /// Hashes a plaintext password using Argon2id with a secure random salt.
 pub fn hash_password(password: &str) -> Result<String, ApiError> {
@@ -26,7 +26,9 @@ pub fn verify_password(password: &str, password_hash: &str) -> Result<bool, ApiE
     };
 
     let argon2 = Argon2::default();
-    Ok(argon2.verify_password(password.as_bytes(), &parsed_hash).is_ok())
+    Ok(argon2
+        .verify_password(password.as_bytes(), &parsed_hash)
+        .is_ok())
 }
 
 #[cfg(test)]

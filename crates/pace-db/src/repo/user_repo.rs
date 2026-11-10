@@ -110,11 +110,7 @@ pub async fn reset_user_password(
     Ok(())
 }
 
-pub async fn set_user_active(
-    pool: &PgPool,
-    user_id: Uuid,
-    is_active: bool,
-) -> Result<(), DbError> {
+pub async fn set_user_active(pool: &PgPool, user_id: Uuid, is_active: bool) -> Result<(), DbError> {
     let rows_affected = sqlx::query!(
         r#"
         UPDATE users

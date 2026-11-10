@@ -94,12 +94,7 @@ async fn test_login_success_and_logout_terminates_session() {
     assert!(cookie_header.contains("HttpOnly"));
 
     // Extract cookie value for subsequent requests
-    let session_cookie = cookie_header
-        .split(';')
-        .next()
-        .unwrap()
-        .trim()
-        .to_string();
+    let session_cookie = cookie_header.split(';').next().unwrap().trim().to_string();
 
     let body = resp.into_body().collect().await.unwrap().to_bytes();
     let login_json: Value = serde_json::from_slice(&body).unwrap();
