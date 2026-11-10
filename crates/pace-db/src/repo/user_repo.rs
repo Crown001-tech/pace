@@ -85,6 +85,31 @@ pub async fn update_user_password(
     Ok(())
 }
 
+pub async fn reset_user_password(
+    pool: &PgPool,
+    user_id: Uuid,
+    temporary_password_hash: &str,
+) -> Result<(), DbError> {
+    let rows_affected = sqlx::query!(
+        r#"
+        UPDATE users
+        SET password_hash = $2, must_change_password = true
+        WHERE id = $1
+        "#,
+        user_id,
+        temporary_password_hash
+    )
+    .execute(pool)
+    .await?
+    .rows_affected();
+
+    if rows_affected == 0 {
+        return Err(DbError::NotFound);
+    }
+
+    Ok(())
+}
+
 pub async fn set_user_active(
     pool: &PgPool,
     user_id: Uuid,

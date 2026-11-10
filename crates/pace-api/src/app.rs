@@ -1,6 +1,6 @@
 use axum::{
     http::{header, HeaderName, HeaderValue, Method},
-    routing::get,
+    routing::{get, patch, post},
     Router,
 };
 use pace_db::DbPool;
@@ -58,9 +58,34 @@ pub fn create_app(state: AppState) -> Router {
         .layer(CompressionLayer::new())
         .layer(cors);
 
+    // Auth routes
+    let auth_routes = Router::new()
+        .route("/login", post(routes::auth::login))
+        .route("/logout", post(routes::auth::logout))
+        .route("/me", get(routes::auth::me))
+        .route("/password", post(routes::auth::change_password));
+
+    // Admin routes
+    let admin_routes = Router::new()
+        .route(
+            "/users",
+            post(routes::admin::create_new_user).get(routes::admin::get_all_users),
+        )
+        .route("/users/{id}", patch(routes::admin::update_user_status))
+        .route(
+            "/users/{id}/reset-password",
+            post(routes::admin::admin_reset_password),
+        );
+
+    // /api/v1 router
+    let api_v1 = Router::new()
+        .nest("/auth", auth_routes)
+        .nest("/admin", admin_routes);
+
     Router::new()
         .route("/healthz", get(routes::health::healthz))
         .route("/readyz", get(routes::health::readyz))
+        .nest("/api/v1", api_v1)
         .layer(middleware)
         .with_state(state)
 }
