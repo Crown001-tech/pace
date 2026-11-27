@@ -1,11 +1,23 @@
 pub mod audit;
+pub mod export;
+pub mod extension;
 pub mod login_attempt;
+pub mod media;
+pub mod narration;
 pub mod project;
+pub mod scene_media;
+pub mod section;
 pub mod session;
 pub mod user;
 
 pub use audit::*;
+pub use export::*;
+pub use extension::*;
 pub use login_attempt::*;
+pub use media::*;
+pub use narration::*;
 pub use project::*;
+pub use scene_media::*;
+pub use section::*;
 pub use session::*;
 pub use user::*;

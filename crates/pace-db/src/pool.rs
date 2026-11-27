@@ -16,6 +16,12 @@ pub enum DbError {
     #[error("Account locked due to 10 failed login attempts in the past 15 minutes")]
     AccountLocked,
 
+    #[error("Storage quota exceeded ({current_bytes} / {max_bytes} bytes used)")]
+    QuotaExceeded { current_bytes: i64, max_bytes: i64 },
+
+    #[error("Validation error: {0}")]
+    Validation(String),
+
     #[error("Record not found")]
     NotFound,
 }
@@ -24,8 +30,8 @@ pub enum DbError {
 pub async fn create_pool(database_url: &str) -> Result<PgPool, DbError> {
     let pool = PgPoolOptions::new()
         .max_connections(10)
-        .min_connections(2)
-        .acquire_timeout(Duration::from_secs(5))
+        .min_connections(1)
+        .acquire_timeout(Duration::from_secs(15))
         .idle_timeout(Duration::from_secs(60))
         .connect(database_url)
         .await?;

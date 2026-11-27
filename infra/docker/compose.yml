@@ -22,12 +22,25 @@ services:
     environment:
       MINIO_ROOT_USER: pace
       MINIO_ROOT_PASSWORD: pace-secret
+      MINIO_API_CORS_ALLOW_ORIGIN: "http://localhost:3000,http://127.0.0.1:3000,*"
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
       - minio-data:/data
     mem_limit: 512m
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: pace-minio-init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 pace pace-secret;
+      /usr/bin/mc mb --ignore-existing myminio/pace;
+      exit 0;
+      "
 
 volumes:
   pg-data:

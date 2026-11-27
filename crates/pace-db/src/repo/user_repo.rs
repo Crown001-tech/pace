@@ -33,7 +33,7 @@ pub async fn find_user_by_email(pool: &PgPool, email: &str) -> Result<Option<Use
         SELECT id, email as "email!", name, password_hash, role, must_change_password, is_active,
                storage_quota_bytes, storage_used_bytes, daily_1080p_limit, created_at, updated_at
         FROM users
-        WHERE LOWER(email) = LOWER($1)
+        WHERE email = ($1::text)::citext
         "#,
         email
     )
@@ -73,6 +73,31 @@ pub async fn update_user_password(
         "#,
         user_id,
         new_password_hash
+    )
+    .execute(pool)
+    .await?
+    .rows_affected();
+
+    if rows_affected == 0 {
+        return Err(DbError::NotFound);
+    }
+
+    Ok(())
+}
+
+pub async fn reset_user_password(
+    pool: &PgPool,
+    user_id: Uuid,
+    temporary_password_hash: &str,
+) -> Result<(), DbError> {
+    let rows_affected = sqlx::query!(
+        r#"
+        UPDATE users
+        SET password_hash = $2, must_change_password = true
+        WHERE id = $1
+        "#,
+        user_id,
+        temporary_password_hash
     )
     .execute(pool)
     .await?

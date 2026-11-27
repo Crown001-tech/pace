@@ -6,10 +6,14 @@ edition = "2021"
 [dependencies]
 # Internal workspace crates
 pace-db = { path = "../pace-db" }
+pace-engine = { path = "../pace-engine" }
+pace-jobs = { path = "../pace-jobs" }
+pace-storage = { path = "../pace-storage" }
 
 # Web framework and async runtime
 axum = { version = "0.8", features = ["macros"] }
 tokio = { version = "1.43", features = ["full"] }
+tokio-stream = "0.1"
 tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6", features = [
     "cors",
@@ -30,13 +34,15 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 
 # OpenAPI documentation
-utoipa = { version = "5.3", features = ["axum_extras", "uuid"] }
+utoipa = { version = "5.3", features = ["axum_extras", "uuid", "chrono"] }
 
 # Identifiers & Types
 uuid = { version = "1.15", features = ["v7", "v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 http = "1.2"
 dotenvy = "0.15"
+reqwest = { version = "0.12", features = ["json"] }
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp"] }
 
 # Security and Cryptography (for Step 3)
 argon2 = "0.5"
@@ -47,3 +53,4 @@ subtle = "2.6"
 [dev-dependencies]
 reqwest = { version = "0.12", features = ["json", "cookies"] }
 http-body-util = "0.1"
+

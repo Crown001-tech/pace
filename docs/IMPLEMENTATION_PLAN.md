@@ -95,15 +95,15 @@ flowchart TD
 
 | Milestone | Name | Core Deliverable | Cost | Status |
 | :---: | :--- | :--- | :---: | :---: |
-| **M0** | **Setup & First Experiments** | Docker runs Postgres & MinIO; Groq & browser uploads proven | **$0** | **In Progress** |
-| **M1** | **The Engine Core** | Pure Rust engine calculates timing, camera motion, fit | **$0** | Up Next |
-| **M2** | **Accounts & Projects API** | Axum API with auth, multi-tenant isolation, version checks | **$0** | Planned |
-| **M3** | **Web App: Script & Sections** | Next.js dashboard & script editor with autosave & undo | **$0** | Planned |
-| **M4** | **Media Upload & Assignment** | Hundreds of images upload to storage with natural sorting | **$0** | Planned |
-| **M5** | **Narration & Sync** | Python worker transcribes speech & aligns to script with flags | **$0** | Planned |
-| **M6** | **Timeline Editor** | Draggable boundaries on waveform with pause snapping | **$0** | Planned |
-| **M7** | **Effects & Browser Preview** | Real-time preview canvas driven by Rust WebAssembly | **$0** | Planned |
-| **M8** | **Render & Export** | Parallel segment rendering, FFmpeg encoding, cache reuse | **$0** | Planned |
+| **M0** | **Setup & First Experiments** | Docker runs Postgres & MinIO; Groq & browser uploads proven | **$0** | **Complete** |
+| **M1** | **The Engine Core** | Pure Rust engine calculates timing, camera motion, fit | **$0** | **Complete** |
+| **M2** | **Accounts & Projects API** | Axum API with auth, multi-tenant isolation, version checks | **$0** | **Complete** |
+| **M3** | **Web App: Script & Sections** | Next.js dashboard & script editor with autosave & undo | **$0** | **Complete** |
+| **M4** | **Media Upload & Assignment** | Hundreds of images upload to storage with natural sorting | **$0** | **Complete** |
+| **M5** | **Narration & Sync** | Python worker transcribes speech & aligns to script with flags | **$0** | **Complete** |
+| **M6** | **Timeline Editor** | Draggable boundaries on waveform with pause snapping | **$0** | **Complete** |
+| **M7** | **Effects & Browser Preview** | Real-time preview canvas driven by Rust WebAssembly | **$0** | **Complete** |
+| **M8** | **Render & Export** | Parallel segment rendering, FFmpeg encoding, cache reuse | **$0** | **Up Next** |
 | **M9** | **Music & Subtitles** | Ducked background music; subtitles burned into video | **$0** | Planned |
 | **M10** | **Hardening & Local Acceptance** | Full test matrix passed locally in Docker with zero data loss | **$0** | Planned |
 | **M11** | **Go Online** | Deployed on Railway, Backblaze B2, and Cloudflare Pages | **$5–8/mo** | Planned |
@@ -241,8 +241,8 @@ flowchart TD
 - Stale `If-Match` version returns `409 PROJECT_VERSION_CONFLICT`.
 
 #### Done When Checklist
-- [ ] Full user and project lifecycle functional via curl/Bruno against local PostgreSQL.
-- [ ] All API integration tests pass in CI.
+- [x] Full user and project lifecycle functional via curl/Bruno against local PostgreSQL.
+- [x] All API integration tests pass in CI.
 
 ---
 
@@ -283,8 +283,8 @@ flowchart TD
 - Autosave: closing tab 2s after edit preserves changes (Playwright).
 
 #### Done When Checklist
-- [ ] 40-paragraph script splits into 40 sections; reordering survives reload.
-- [ ] Two open tabs editing the same project cannot overwrite each other silently.
+- [x] 40-paragraph script splits into 40 sections; reordering survives reload.
+- [x] Two open tabs editing the same project cannot overwrite each other silently.
 
 ---
 
@@ -418,7 +418,7 @@ flowchart TD
 | :--- | :--- |
 | **PRD Scope** | `EFX-01..06`, `EFX-08..09`, `PRV-01`, `PRV-03..05`; TDD Sections 12, 14 |
 | **Cost** | **$0** |
-| **Current Status** | Planned |
+| **Current Status** | **Complete** |
 | **Fallback Plan** | Camera shake (`EFX-07`) can defer to v1.1. If WASM setup issues arise, get `total_frames` working first. |
 
 #### Learn First
@@ -443,8 +443,8 @@ flowchart TD
 - WASM parity test: WebAssembly and native builds output bit-identical `FramePlan`s for 100 sample frames.
 
 #### Done When Checklist
-- [ ] 22-minute project previews smoothly from any timestamp within 3s.
-- [ ] Changing an effect updates the preview canvas instantly and persists across reload.
+- [x] 22-minute project previews smoothly from any timestamp within 3s.
+- [x] Changing an effect updates the preview canvas instantly and persists across reload.
 
 ---
 

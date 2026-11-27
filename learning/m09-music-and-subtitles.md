@@ -1,0 +1,5 @@
+# Milestone 9 Learning Notes — Background Music & Subtitles
+
+1. **FFmpeg Filter Graphs (`sidechaincompress` & `loudnorm`)**: Feeding a split copy of the `-16 LUFS` narration stream into `sidechaincompress` automatically ducks looped background music whenever speech is present, and finishing the combined `amix` bus with `loudnorm=I=-14:TP=-1.0:LRA=11,alimiter=limit=-1.0dB:level=false` guarantees broadcast-consistent `-14 ± 1 LUFS` loudness and `<= -1.0 dBTP` true peak.
+2. **Deterministic CPU Subtitle Burn-In (`ab_glyph`)**: Embedding curated TTF fonts (`Ubuntu-B.ttf` and `UbuntuMono-R.ttf`) via `include_bytes!` and pre-rendering each cue's bounding box once per segment with dilated glyph outlines and semi-transparent backdrops avoids per-frame font shaping overhead while maintaining `SSIM >= 0.95` parity.
+3. **Timeframe-Scoped Segment Cache Invalidation**: Including only the subtitle cues whose `[start_frame, end_frame)` window overlaps a render segment's `[start_frame, end_frame)` inside that segment's SHA-256 cache payload ensures editing or splitting one subtitle cue only invalidates the 1–2 segments covering its timeframe.

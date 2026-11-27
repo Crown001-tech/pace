@@ -33,14 +33,20 @@ async fn test_healthz_endpoint_with_database() {
             .unwrap_or_else(|_| "postgres://pace:pace@localhost:5432/pace".to_string()),
         session_secret: "01234567890123456789012345678901".to_string(),
         cors_origin: "http://localhost:3000".to_string(),
+        s3_endpoint: "http://localhost:9000".to_string(),
+        s3_bucket: "pace".to_string(),
+        s3_region: "us-east-1".to_string(),
+        s3_access_key: "pace".to_string(),
+        s3_secret_key: "pace-secret".to_string(),
+        pexels_api_key: None,
+        pixabay_api_key: None,
+        cloudflare_account_id: None,
+        cloudflare_api_token: None,
     };
 
     // If database is available, test both healthz and readyz
     if let Ok(pool) = pace_db::create_pool(&config.database_url).await {
-        let app = create_app(AppState {
-            db: pool,
-            config: config.clone(),
-        });
+        let app = create_app(AppState::new(pool, config.clone()));
 
         // 1. Test /healthz
         let response = app

@@ -2,10 +2,21 @@
 resolver = "2"
 members = [
     "crates/pace-engine",
+    "crates/pace-engine-wasm",
     "crates/pace-db",
+    "crates/pace-jobs",
+    "crates/pace-storage",
+    "crates/pace-render",
     "crates/pace-api",
     "learning/exercises/render-spike",
+    "xtask",
 ]
 
 [profile.dev.package."*"]
 opt-level = 2
+
+[profile.dev.package.pace-engine]
+opt-level = 3
+
+[profile.dev.package.pace-render]
+opt-level = 3

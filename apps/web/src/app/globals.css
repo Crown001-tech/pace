@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Soft Lavender Alabaster — eye-friendly daylight studio */
+    --background: 250 100% 98%;        /* #F5F3FF */
+    --foreground: 256 26% 12%;         /* #1B1726 */
+    --card: 0 0% 100%;                 /* #FFFFFF */
+    --card-foreground: 256 26% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 256 26% 12%;
+    --primary: 266 85% 26%;            /* #3B0A7A */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 252 45% 94%;          /* #ECE7FA */
+    --secondary-foreground: 256 26% 18%;
+    --muted: 252 38% 93%;
+    --muted-foreground: 255 14% 42%;   /* #645C7A */
+    --accent: 264 100% 72%;            /* #A970FF */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 254 28% 89%;             /* #E2DCF0 */
+    --input: 254 24% 85%;
+    --ring: 264 100% 72%;
+    --radius: 0.625rem;
+    --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  .dark {
+    /* Velvet Obsidian Studio — layered plum-charcoal for long editing sessions */
+    --background: 253 27% 6%;          /* #0E0C15 */
+    --foreground: 258 45% 96%;         /* #F3F0FA */
+    --card: 254 27% 10%;               /* #151220 */
+    --card-foreground: 258 45% 96%;
+    --popover: 254 27% 13%;            /* #1C182B */
+    --popover-foreground: 258 45% 96%;
+    --primary: 264 100% 72%;           /* #A970FF */
+    --primary-foreground: 260 56% 10%; /* #140B29 */
+    --secondary: 254 24% 14%;          /* #1F1B2E */
+    --secondary-foreground: 256 25% 90%;
+    --muted: 254 22% 14%;
+    --muted-foreground: 256 17% 64%;   /* #9B92B3 */
+    --accent: 264 100% 72%;            /* #A970FF */
+    --accent-foreground: 260 56% 10%;
+    --destructive: 0 68% 54%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 254 20% 18%;             /* #2A2538 */
+    --input: 254 20% 21%;
+    --ring: 264 100% 72%;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased selection:bg-brand-lavender/25 selection:text-foreground;
+    overscroll-behavior-y: contain;
+  }
+
+  h1, h2, h3 {
+    letter-spacing: -0.025em;
+  }
+
+  * {
+    @apply border-border;
+  }
+}
+
+/* Soft studio elevation shadows */
+.studio-card {
+  box-shadow: 0 1px 2px rgba(59, 10, 122, 0.04), 0 8px 24px -10px rgba(59, 10, 122, 0.08);
+}
+.dark .studio-card {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px -12px rgba(0, 0, 0, 0.55);
+}
+
+/* Smooth theme transition without triggering on page load */
+html.theme-transitioning,
+html.theme-transitioning * {
+  transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, box-shadow 200ms ease !important;
+}
+
+/* Studio precision scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(155, 146, 179, 0.25);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(169, 112, 255, 0.5);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

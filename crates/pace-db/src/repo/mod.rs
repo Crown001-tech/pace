@@ -1,11 +1,23 @@
 pub mod audit_repo;
+pub mod export_repo;
+pub mod extension_repo;
 pub mod login_attempt_repo;
+pub mod media_repo;
+pub mod narration_repo;
 pub mod project_repo;
+pub mod scene_media_repo;
+pub mod section_repo;
 pub mod session_repo;
 pub mod user_repo;
 
 pub use audit_repo::*;
+pub use export_repo::*;
+pub use extension_repo::*;
 pub use login_attempt_repo::*;
+pub use media_repo::*;
+pub use narration_repo::*;
 pub use project_repo::*;
+pub use scene_media_repo::*;
+pub use section_repo::*;
 pub use session_repo::*;
 pub use user_repo::*;

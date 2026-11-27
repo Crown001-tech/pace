@@ -1,0 +1,16 @@
+{
+    "name":  "@pace/engine-wasm",
+    "type":  "module",
+    "version":  "0.1.0",
+    "files":  [
+                  "pace_engine_wasm_bg.wasm",
+                  "pace_engine_wasm.js",
+                  "pace_engine_wasm.d.ts"
+              ],
+    "main":  "pace_engine_wasm.js",
+    "types":  "pace_engine_wasm.d.ts",
+    "sideEffects":  [
+                        "./snippets/*"
+                    ],
+    "private":  true
+}

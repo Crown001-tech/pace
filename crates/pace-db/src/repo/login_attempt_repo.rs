@@ -29,7 +29,7 @@ pub async fn check_lockout(pool: &PgPool, email: &str) -> Result<(), DbError> {
         r#"
         SELECT COUNT(*)
         FROM login_attempts
-        WHERE LOWER(email) = LOWER($1)
+        WHERE email = ($1::text)::citext
           AND success = false
           AND attempted_at >= (now() - interval '15 minutes')
         "#,

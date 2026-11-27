@@ -1,0 +1,21 @@
+[package]
+name = "pace-storage"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+hex = "0.4"
+hmac = "0.12"
+reqwest = { version = "0.12", features = ["stream"] }
+sha2 = "0.10"
+thiserror = "2.0"
+tokio = { version = "1.43", features = ["fs", "io-util"] }
+url = "2.5"
+uuid = { version = "1.15", features = ["v4", "serde"] }
+
+[dev-dependencies]
+tempfile = "3.17"
+tokio = { version = "1.43", features = ["full"] }
+

@@ -7,6 +7,10 @@ pub mod effects;
 pub mod fit;
 pub mod motion;
 pub mod segmentation;
+pub mod segments;
+pub mod spec;
+pub mod stickers;
+pub mod subtitles;
 pub mod timing;
 
 pub fn engine_version() -> &'static str {

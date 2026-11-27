@@ -1,0 +1,5605 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PACE API",
+    "description": "Automated documentary-style narrated video production API",
+    "license": {
+      "name": ""
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/admin/users": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "GET /api/v1/admin/users\nLists all registered users.",
+        "operationId": "get_all_users",
+        "responses": {
+          "200": {
+            "description": "List of all registered users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserProfile"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "POST /api/v1/admin/users\nCreates a new user with a temporary password and quota. Requires admin role.",
+        "operationId": "create_new_user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfile"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/users/{id}": {
+      "patch": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "PATCH /api/v1/admin/users/{id}\nActivates or deactivates a user. If deactivated, immediately terminates all active sessions (AUTH-04).",
+        "operationId": "update_user_status",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "User status updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfile"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/users/{id}/reset-password": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "POST /api/v1/admin/users/{id}/reset-password\nResets a user's password to a temporary password, flags must_change_password = true,\nand terminates all active sessions.",
+        "operationId": "admin_reset_password",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "POST /api/v1/auth/login",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Logged in successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Account locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "POST /api/v1/auth/logout",
+        "operationId": "logout",
+        "responses": {
+          "200": {
+            "description": "Logged out successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "GET /api/v1/auth/me",
+        "operationId": "me",
+        "responses": {
+          "200": {
+            "description": "Current user profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "POST /api/v1/auth/password",
+        "operationId": "change_password",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Password changed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects": {
+      "get": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "GET /api/v1/projects\nLists all active projects owned by the authenticated user (PRJ-02, AUTH-05).",
+        "operationId": "list_projects_handler",
+        "responses": {
+          "200": {
+            "description": "List of user projects sorted by updated_at DESC",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "POST /api/v1/projects\nCreates a new project for the authenticated user (PRJ-01, AUTH-05).",
+        "operationId": "create_project_handler",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Project created successfully",
+            "headers": {
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Entity tag representing project version"
+              },
+              "Location": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "URI of the newly created project"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}": {
+      "get": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "GET /api/v1/projects/{id}\nRetrieves a specific project owned by the authenticated user (PRJ-03, AUTH-05).\nReturns 404 Not Found if the project doesn't exist or is owned by another user.",
+        "operationId": "get_project_handler",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project details",
+            "headers": {
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Entity tag representing current project version"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found or owned by another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "DELETE /api/v1/projects/{id}\nSoft-deletes a project owned by the authenticated user (PRJ-06, AUTH-05).",
+        "operationId": "delete_project_handler",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Project soft-deleted successfully"
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "PATCH /api/v1/projects/{id}\nUpdates project metadata with optimistic concurrency control (PRJ-04, PRJ-05, AUTH-05).\nRequires an If-Match header or version field matching the current version.",
+        "operationId": "update_project_handler",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "Expected project version for optimistic concurrency control",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProjectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Project updated successfully",
+            "headers": {
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Entity tag representing updated project version"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or missing version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Project version conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/assignments": {
+      "get": {
+        "tags": [
+          "Assignments"
+        ],
+        "operationId": "list_assignments",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of section assignments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AssignmentResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/assignments/auto": {
+      "put": {
+        "tags": [
+          "Assignments"
+        ],
+        "operationId": "auto_assign",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Auto-assigned media to sections 1-to-1",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AssignmentResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/assignments/swap": {
+      "put": {
+        "tags": [
+          "Assignments"
+        ],
+        "operationId": "swap_sections",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwapSectionsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Sections swapped successfully"
+          },
+          "404": {
+            "description": "Project or sections not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/assignments/{section_id}": {
+      "put": {
+        "tags": [
+          "Assignments"
+        ],
+        "operationId": "assign_section",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "section_id",
+            "in": "path",
+            "description": "Section UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignSectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Section assigned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid framing parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project, section, or media asset not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Assignments"
+        ],
+        "operationId": "unassign_section",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "section_id",
+            "in": "path",
+            "description": "Section UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Section unassigned (now Empty)"
+          },
+          "404": {
+            "description": "Project or section not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/assignments/{section_id}/effect": {
+      "patch": {
+        "tags": [
+          "Effects"
+        ],
+        "summary": "PATCH /api/v1/projects/{id}/assignments/{section_id}/effect",
+        "operationId": "update_scene_effect",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "section_id",
+            "in": "path",
+            "description": "Section UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSceneEffectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated scene motion effect and framing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid effect parameter or unassigned section",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project or section not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/boundaries": {
+      "patch": {
+        "tags": [
+          "Timeline"
+        ],
+        "summary": "PATCH /api/v1/projects/{id}/boundaries",
+        "operationId": "batch_patch_boundaries",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchUpdateBoundariesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Batch boundary updates committed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BoundaryDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid boundary ordering or minimum duration violation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project or boundary not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/boundaries/{index}": {
+      "patch": {
+        "tags": [
+          "Narration"
+        ],
+        "operationId": "patch_boundary",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "index",
+            "in": "path",
+            "description": "Zero-based boundary index",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBoundaryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Manual boundary update persisted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BoundaryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Boundary overlaps neighbor or is immutable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project or boundary not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/effects/reroll": {
+      "post": {
+        "tags": [
+          "Effects"
+        ],
+        "summary": "POST /api/v1/projects/{id}/effects/reroll",
+        "operationId": "reroll_effects",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Re-rolled automatic presets for non-overridden scenes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RerollEffectsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/exports": {
+      "get": {
+        "tags": [
+          "Exports"
+        ],
+        "summary": "GET /api/v1/projects/{id}/exports",
+        "operationId": "list_exports",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recent project exports",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExportResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Exports"
+        ],
+        "summary": "POST /api/v1/projects/{id}/exports",
+        "operationId": "start_export",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartExportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "MP4 export queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing section assignments, empty script, or invalid resolution",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "An export is already queued or rendering for this project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/exports/{export_id}": {
+      "get": {
+        "tags": [
+          "Exports"
+        ],
+        "summary": "GET /api/v1/projects/{id}/exports/{export_id}",
+        "operationId": "get_export",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "export_id",
+            "in": "path",
+            "description": "Export UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Export details, validation status, and signed download URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project or export not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/exports/{export_id}/events": {
+      "get": {
+        "tags": [
+          "Exports"
+        ],
+        "summary": "GET /api/v1/projects/{id}/exports/{export_id}/events",
+        "operationId": "stream_export_events",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "export_id",
+            "in": "path",
+            "description": "Export UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Server-Sent Events stream of live export progress"
+          },
+          "404": {
+            "description": "Project or export not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/exports/{export_id}/retry": {
+      "post": {
+        "tags": [
+          "Exports"
+        ],
+        "summary": "POST /api/v1/projects/{id}/exports/{export_id}/retry",
+        "operationId": "retry_export",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "export_id",
+            "in": "path",
+            "description": "Export UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Failed or cancelled export re-queued (resuming cached segments)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Export cannot be retried in current status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project or export not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "Narration"
+        ],
+        "operationId": "get_project_job",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "description": "Job UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current job status and progress",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatusDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project or job not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/media": {
+      "get": {
+        "tags": [
+          "Media"
+        ],
+        "operationId": "list_media",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of project media assets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MediaResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Media"
+        ],
+        "operationId": "register_media",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterMediaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Media asset registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid media metadata or missing uploaded object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate media asset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Storage quota exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/media/ai/generate": {
+      "post": {
+        "tags": [
+          "Media"
+        ],
+        "operationId": "generate_ai_media",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateAiMediaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "AI image generated and saved to project library",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty prompt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/media/stock/auto-match": {
+      "post": {
+        "tags": [
+          "Media"
+        ],
+        "operationId": "auto_match_stock_media",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AutoMatchStockRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Auto-matched empty scenes with stock photos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AutoMatchStockResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/media/stock/import": {
+      "post": {
+        "tags": [
+          "Media"
+        ],
+        "operationId": "import_stock_media",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportStockMediaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Stock image imported into project library",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid image URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/media/stock/search": {
+      "get": {
+        "tags": [
+          "Media"
+        ],
+        "operationId": "search_stock_media",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Free stock photo search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockSearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/media/{media_id}": {
+      "delete": {
+        "tags": [
+          "Media"
+        ],
+        "operationId": "delete_media",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "media_id",
+            "in": "path",
+            "description": "Media Asset UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Media asset deleted"
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/music": {
+      "get": {
+        "tags": [
+          "Music"
+        ],
+        "summary": "GET /api/v1/projects/{id}/music",
+        "operationId": "get_music_state",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current background music asset and mix/ducking settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MusicStateResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Music"
+        ],
+        "summary": "POST /api/v1/projects/{id}/music",
+        "operationId": "register_music",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterMusicRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Background music registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MusicStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid music metadata or missing uploaded object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Music"
+        ],
+        "summary": "DELETE /api/v1/projects/{id}/music",
+        "operationId": "delete_music",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Background music track removed"
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Music"
+        ],
+        "summary": "PATCH /api/v1/projects/{id}/music",
+        "operationId": "update_music_settings",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMusicSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated background music volume, ducking, loop, and fade settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MusicStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Out-of-range volume or ducking parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/music/presign": {
+      "post": {
+        "tags": [
+          "Music"
+        ],
+        "summary": "POST /api/v1/projects/{id}/music/presign",
+        "operationId": "presign_music",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresignMusicRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Pre-signed PUT URL for background music",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresignMusicResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unsupported audio format or invalid size",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Storage quota exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/narration": {
+      "get": {
+        "tags": [
+          "Narration"
+        ],
+        "operationId": "get_narration_state",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current project narration, alignment boundaries, subtitles, and job status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NarrationStateResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Narration"
+        ],
+        "operationId": "register_narration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterNarrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Narration registered and audio processing job queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterNarrationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid audio metadata or missing uploaded object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Narration"
+        ],
+        "operationId": "delete_narration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Narration and alignment artifacts deleted"
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/narration/peaks": {
+      "get": {
+        "tags": [
+          "Narration"
+        ],
+        "operationId": "get_narration_peaks",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Waveform peak pairs for timeline/narration display",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NarrationPeaksResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Narration peaks not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/narration/presign": {
+      "post": {
+        "tags": [
+          "Narration"
+        ],
+        "operationId": "presign_narration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresignNarrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Pre-signed PUT URL for narration audio",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresignNarrationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unsupported audio format or invalid size",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Storage quota exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/narration/realign": {
+      "post": {
+        "tags": [
+          "Narration"
+        ],
+        "operationId": "realign_narration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealignNarrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Re-alignment job queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterNarrationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No narration uploaded yet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/render-spec": {
+      "get": {
+        "tags": [
+          "Effects"
+        ],
+        "summary": "GET /api/v1/projects/{id}/render-spec",
+        "operationId": "get_render_spec",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Compiled deterministic RenderSpec with signed preview asset URLs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RenderSpecResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Project missing sections or invalid timing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/script": {
+      "get": {
+        "tags": [
+          "Scripts"
+        ],
+        "operationId": "get_script_handler",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project script and ordered sections",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScriptResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Scripts"
+        ],
+        "operationId": "save_script_handler",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveScriptRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Script and sections saved (IDs preserved)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScriptResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid script payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/subtitles": {
+      "get": {
+        "tags": [
+          "Subtitles"
+        ],
+        "summary": "GET /api/v1/projects/{id}/subtitles",
+        "operationId": "get_subtitles_state",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subtitle cues with line wrapping, rule checks, and burn-in style settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubtitlesStateResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/subtitles/merge": {
+      "post": {
+        "tags": [
+          "Subtitles"
+        ],
+        "summary": "POST /api/v1/projects/{id}/subtitles/merge",
+        "operationId": "merge_subtitle_cues_handler",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeSubtitleCuesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Two adjacent subtitle cues merged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubtitleCueDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Subtitle cues are not adjacent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project or subtitle cue not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/subtitles/style": {
+      "put": {
+        "tags": [
+          "Subtitles"
+        ],
+        "summary": "PUT /api/v1/projects/{id}/subtitles/style",
+        "operationId": "update_subtitle_style",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubtitleStyleDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated subtitle burn-in style settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubtitleStyleDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid font, position, color, or size",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/subtitles/{cue_id}": {
+      "patch": {
+        "tags": [
+          "Narration"
+        ],
+        "operationId": "patch_subtitle_cue",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cue_id",
+            "in": "path",
+            "description": "Subtitle cue UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSubtitleCueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Subtitle cue updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubtitleCueDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid subtitle text or timings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project or subtitle cue not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/subtitles/{cue_id}/split": {
+      "post": {
+        "tags": [
+          "Subtitles"
+        ],
+        "summary": "POST /api/v1/projects/{id}/subtitles/{cue_id}/split",
+        "operationId": "split_subtitle_cue_handler",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cue_id",
+            "in": "path",
+            "description": "Subtitle cue UUID to split",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SplitSubtitleCueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Subtitle cue split into two consecutive cues",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubtitleCueDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Cue has fewer than 2 words or invalid duration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project or subtitle cue not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/timeline": {
+      "get": {
+        "tags": [
+          "Timeline"
+        ],
+        "summary": "GET /api/v1/projects/{id}/timeline",
+        "operationId": "get_timeline_state",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete timeline state with scenes, boundaries, flags, and audio metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimelineStateResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/uploads/presign": {
+      "post": {
+        "tags": [
+          "Media"
+        ],
+        "operationId": "presign_upload",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Project UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresignUploadRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Pre-signed PUT URLs generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresignUploadResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unsupported file type, invalid size, or project image cap reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Storage quota exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/healthz": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "GET /healthz\nLiveness probe: returns 200 OK if the API server process is responding.",
+        "operationId": "healthz",
+        "responses": {
+          "200": {
+            "description": "Server is alive",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/readyz": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "GET /readyz\nReadiness probe: returns 200 OK if the database connection pool is healthy.\nReturns 503 Service Unavailable if the database is unreachable.",
+        "operationId": "readyz",
+        "responses": {
+          "200": {
+            "description": "Database connected and ready",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database unreachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AssignSectionRequest": {
+        "type": "object",
+        "required": [
+          "media_id"
+        ],
+        "properties": {
+          "fit_mode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "focal_x": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float"
+          },
+          "focal_y": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float"
+          },
+          "media_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "AssignmentResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "section_id",
+          "media_id",
+          "fit_mode",
+          "focal_x",
+          "focal_y",
+          "effect",
+          "effect_overridden"
+        ],
+        "properties": {
+          "effect": {
+            "$ref": "#/components/schemas/SceneEffectDto"
+          },
+          "effect_overridden": {
+            "type": "boolean"
+          },
+          "fit_mode": {
+            "type": "string"
+          },
+          "focal_x": {
+            "type": "number",
+            "format": "float"
+          },
+          "focal_y": {
+            "type": "number",
+            "format": "float"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "media_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "section_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "AutoMatchStockRequest": {
+        "type": "object",
+        "properties": {
+          "section_ids": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "AutoMatchStockResponse": {
+        "type": "object",
+        "required": [
+          "matched_count",
+          "skipped_count",
+          "matched"
+        ],
+        "properties": {
+          "matched": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMatchedSceneItem"
+            }
+          },
+          "matched_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "skipped_count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "AutoMatchedSceneItem": {
+        "type": "object",
+        "required": [
+          "section_id",
+          "query",
+          "media"
+        ],
+        "properties": {
+          "media": {
+            "$ref": "#/components/schemas/MediaResponse"
+          },
+          "query": {
+            "type": "string"
+          },
+          "section_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "BatchBoundaryItem": {
+        "type": "object",
+        "required": [
+          "index",
+          "time_ms"
+        ],
+        "properties": {
+          "index": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "time_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transition": {}
+        }
+      },
+      "BatchUpdateBoundariesRequest": {
+        "type": "object",
+        "required": [
+          "boundaries"
+        ],
+        "properties": {
+          "boundaries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BatchBoundaryItem"
+            }
+          }
+        }
+      },
+      "BoundaryDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "index",
+          "time_ms",
+          "source",
+          "flags",
+          "transition"
+        ],
+        "properties": {
+          "confidence": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float"
+          },
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "index": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "source": {
+            "type": "string"
+          },
+          "time_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transition": {}
+        }
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "required": [
+          "current_password",
+          "new_password"
+        ],
+        "properties": {
+          "current_password": {
+            "type": "string"
+          },
+          "new_password": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateProjectRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "aspect_ratio"
+        ],
+        "properties": {
+          "aspect_ratio": {
+            "type": "string"
+          },
+          "effect_seed": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "fps": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "language": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "settings": {}
+        }
+      },
+      "CreateUserRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "name",
+          "temporary_password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "storage_quota_bytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "temporary_password": {
+            "type": "string"
+          }
+        }
+      },
+      "ExportResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "project_id",
+          "spec_hash",
+          "resolution",
+          "width",
+          "height",
+          "fps",
+          "duration_ms",
+          "status",
+          "progress",
+          "validation",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "download_filename": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "download_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "duration_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "error_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "error_message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "finished_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "fps": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "job_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "progress": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resolution": {
+            "type": "string"
+          },
+          "size_bytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "spec_hash": {
+            "type": "string"
+          },
+          "stage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "validation": {},
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GenerateAiMediaRequest": {
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "properties": {
+          "prompt": {
+            "type": "string"
+          },
+          "section_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "style": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "version"
+        ],
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "ImportStockMediaRequest": {
+        "type": "object",
+        "required": [
+          "image_url"
+        ],
+        "properties": {
+          "image_url": {
+            "type": "string"
+          },
+          "provider": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "section_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "JobStatusDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "queue",
+          "job_type",
+          "status",
+          "progress",
+          "attempts",
+          "max_attempts",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "attempts": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "error_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "error_message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "job_type": {
+            "type": "string"
+          },
+          "max_attempts": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "progress": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "queue": {
+            "type": "string"
+          },
+          "result": {},
+          "stage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "required": [
+          "user",
+          "csrf_token"
+        ],
+        "properties": {
+          "csrf_token": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserProfile"
+          }
+        }
+      },
+      "MediaResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "project_id",
+          "filename",
+          "mime",
+          "bytes",
+          "sha256",
+          "download_url"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "download_url": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "height": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mime": {
+            "type": "string"
+          },
+          "preview_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "prompt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "thumb_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "width": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "MergeSubtitleCuesRequest": {
+        "type": "object",
+        "required": [
+          "first_cue_id",
+          "second_cue_id"
+        ],
+        "properties": {
+          "first_cue_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "second_cue_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "MessageResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "MusicSettingsDto": {
+        "type": "object",
+        "required": [
+          "volume_db",
+          "ducking_enabled",
+          "duck_db",
+          "loop_enabled",
+          "crossfade_ms",
+          "fade_in_ms",
+          "fade_out_ms"
+        ],
+        "properties": {
+          "crossfade_ms": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Crossfade duration between loops in milliseconds (`0..=5000`).",
+            "minimum": 0
+          },
+          "duck_db": {
+            "type": "number",
+            "format": "float",
+            "description": "Ducking attenuation in dB (`-18.0` to `-4.0`)."
+          },
+          "ducking_enabled": {
+            "type": "boolean",
+            "description": "Automatically duck music under narration speech."
+          },
+          "fade_in_ms": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Fade-in duration at the start of the video in milliseconds (`0..=15000`).",
+            "minimum": 0
+          },
+          "fade_out_ms": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Fade-out duration at the end of the video in milliseconds (`0..=15000`).",
+            "minimum": 0
+          },
+          "loop_enabled": {
+            "type": "boolean",
+            "description": "Loop music track to fill the entire video duration."
+          },
+          "volume_db": {
+            "type": "number",
+            "format": "float",
+            "description": "Background music volume in dB (`-40.0` to `0.0`)."
+          }
+        }
+      },
+      "MusicStateResponse": {
+        "type": "object",
+        "required": [
+          "project_id",
+          "settings"
+        ],
+        "properties": {
+          "audio_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "bytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "filename": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "media_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/MusicSettingsDto"
+          }
+        }
+      },
+      "NarrationPeaksResponse": {
+        "type": "object",
+        "required": [
+          "media_id",
+          "duration_ms",
+          "peaks"
+        ],
+        "properties": {
+          "duration_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "media_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "peaks": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "format": "float"
+              }
+            }
+          }
+        }
+      },
+      "NarrationStateResponse": {
+        "type": "object",
+        "required": [
+          "project_id",
+          "has_peaks",
+          "silences",
+          "boundaries",
+          "subtitle_cues"
+        ],
+        "properties": {
+          "active_job": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/JobStatusDto"
+              }
+            ]
+          },
+          "audio_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "boundaries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoundaryDto"
+            }
+          },
+          "bytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "duration_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "filename": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "has_peaks": {
+            "type": "boolean"
+          },
+          "loudness_lufs": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float"
+          },
+          "media_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "silences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SilenceGapDto"
+            }
+          },
+          "subtitle_cues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubtitleCueDto"
+            }
+          },
+          "transcript": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TranscriptSummaryDto"
+              }
+            ]
+          },
+          "true_peak_db": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float"
+          }
+        }
+      },
+      "PresignMusicRequest": {
+        "type": "object",
+        "required": [
+          "filename",
+          "content_type",
+          "bytes"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          }
+        }
+      },
+      "PresignMusicResponse": {
+        "type": "object",
+        "required": [
+          "media_id",
+          "storage_key",
+          "upload_url"
+        ],
+        "properties": {
+          "media_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "storage_key": {
+            "type": "string"
+          },
+          "upload_url": {
+            "type": "string"
+          }
+        }
+      },
+      "PresignNarrationRequest": {
+        "type": "object",
+        "required": [
+          "filename",
+          "content_type",
+          "bytes"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          }
+        }
+      },
+      "PresignNarrationResponse": {
+        "type": "object",
+        "required": [
+          "media_id",
+          "storage_key",
+          "upload_url"
+        ],
+        "properties": {
+          "media_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "storage_key": {
+            "type": "string"
+          },
+          "upload_url": {
+            "type": "string"
+          }
+        }
+      },
+      "PresignUploadRequest": {
+        "type": "object",
+        "required": [
+          "filename",
+          "content_type",
+          "bytes"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          }
+        }
+      },
+      "PresignUploadResponse": {
+        "type": "object",
+        "required": [
+          "media_id",
+          "storage_key",
+          "upload_url"
+        ],
+        "properties": {
+          "media_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "preview_key": {
+            "type": "string"
+          },
+          "preview_upload_url": {
+            "type": "string"
+          },
+          "storage_key": {
+            "type": "string"
+          },
+          "thumb_key": {
+            "type": "string"
+          },
+          "thumb_upload_url": {
+            "type": "string"
+          },
+          "upload_url": {
+            "type": "string"
+          }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "description": "RFC 9457 Problem Details payload.\nReturned for all 4xx and 5xx API errors with Content-Type: application/problem+json.",
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "instance": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "ProjectResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "owner_id",
+          "name",
+          "aspect_ratio",
+          "fps",
+          "language",
+          "effect_seed",
+          "settings",
+          "version",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "aspect_ratio": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "effect_seed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fps": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "language": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "settings": {},
+          "status": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ReadinessResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "database"
+        ],
+        "properties": {
+          "database": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "RealignNarrationRequest": {
+        "type": "object",
+        "properties": {
+          "force_local_transcription": {
+            "type": "boolean"
+          },
+          "keep_manual_boundaries": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RegisterMediaRequest": {
+        "type": "object",
+        "required": [
+          "storage_key",
+          "original_filename",
+          "mime",
+          "bytes",
+          "sha256"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "height": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "mime": {
+            "type": "string"
+          },
+          "original_filename": {
+            "type": "string"
+          },
+          "preview_key": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "storage_key": {
+            "type": "string"
+          },
+          "thumb_key": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "width": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "RegisterMusicRequest": {
+        "type": "object",
+        "required": [
+          "storage_key",
+          "original_filename",
+          "mime",
+          "bytes",
+          "sha256"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "media_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "mime": {
+            "type": "string"
+          },
+          "original_filename": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "storage_key": {
+            "type": "string"
+          }
+        }
+      },
+      "RegisterNarrationRequest": {
+        "type": "object",
+        "required": [
+          "storage_key",
+          "original_filename",
+          "mime",
+          "bytes",
+          "sha256"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "media_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "mime": {
+            "type": "string"
+          },
+          "original_filename": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "storage_key": {
+            "type": "string"
+          }
+        }
+      },
+      "RegisterNarrationResponse": {
+        "type": "object",
+        "required": [
+          "media_id",
+          "job"
+        ],
+        "properties": {
+          "job": {
+            "$ref": "#/components/schemas/JobStatusDto"
+          },
+          "media_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "RenderSpecAssetDto": {
+        "type": "object",
+        "required": [
+          "scene_index",
+          "section_id",
+          "width",
+          "height"
+        ],
+        "properties": {
+          "filename": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "height": {
+            "type": "number",
+            "format": "float"
+          },
+          "media_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "preview_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "scene_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "section_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "thumb_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "width": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "RenderSpecResponse": {
+        "type": "object",
+        "required": [
+          "project_id",
+          "spec_hash",
+          "effect_seed",
+          "fps",
+          "frame_width",
+          "frame_height",
+          "total_frames",
+          "duration_ms",
+          "scene_assets",
+          "spec"
+        ],
+        "properties": {
+          "audio_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "duration_ms": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "effect_seed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fps": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "frame_height": {
+            "type": "number",
+            "format": "float"
+          },
+          "frame_width": {
+            "type": "number",
+            "format": "float"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scene_assets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RenderSpecAssetDto"
+            }
+          },
+          "spec": {
+            "type": "object"
+          },
+          "spec_hash": {
+            "type": "string"
+          },
+          "total_frames": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "RerollEffectsResponse": {
+        "type": "object",
+        "required": [
+          "project_id",
+          "effect_seed",
+          "spec_hash"
+        ],
+        "properties": {
+          "effect_seed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "spec_hash": {
+            "type": "string"
+          }
+        }
+      },
+      "ResetPasswordRequest": {
+        "type": "object",
+        "required": [
+          "temporary_password"
+        ],
+        "properties": {
+          "temporary_password": {
+            "type": "string"
+          }
+        }
+      },
+      "SaveScriptRequest": {
+        "type": "object",
+        "required": [
+          "sections"
+        ],
+        "properties": {
+          "raw_text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertSectionItem"
+            }
+          }
+        }
+      },
+      "SceneEffectDto": {
+        "type": "object",
+        "required": [
+          "intensity",
+          "easing"
+        ],
+        "properties": {
+          "easing": {
+            "type": "string"
+          },
+          "intensity": {
+            "type": "string"
+          },
+          "manual_preset": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "manual_shake": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "visual_effect": {
+            "type": "string"
+          }
+        }
+      },
+      "ScriptResponse": {
+        "type": "object",
+        "required": [
+          "project_id",
+          "raw_text",
+          "sections"
+        ],
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "raw_text": {
+            "type": "string"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SectionDto"
+            }
+          },
+          "updated_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "SectionDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "position",
+          "text",
+          "needs_resync",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "needs_resync": {
+            "type": "boolean"
+          },
+          "position": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "text": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SilenceGapDto": {
+        "type": "object",
+        "required": [
+          "start_ms",
+          "end_ms",
+          "duration_ms"
+        ],
+        "properties": {
+          "duration_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "end_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "start_ms": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SplitSubtitleCueRequest": {
+        "type": "object",
+        "properties": {
+          "split_word_index": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Optional word index (`1..word_count`) or split time to split at; defaults to midpoint.",
+            "minimum": 0
+          }
+        }
+      },
+      "StartExportRequest": {
+        "type": "object",
+        "required": [
+          "resolution"
+        ],
+        "properties": {
+          "resolution": {
+            "type": "string"
+          }
+        }
+      },
+      "StockMediaItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "provider",
+          "title",
+          "thumb_url",
+          "image_url",
+          "width",
+          "height",
+          "author"
+        ],
+        "properties": {
+          "author": {
+            "type": "string"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id": {
+            "type": "string"
+          },
+          "image_url": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "thumb_url": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "StockSearchResponse": {
+        "type": "object",
+        "required": [
+          "provider",
+          "query",
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockMediaItem"
+            }
+          },
+          "provider": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string"
+          }
+        }
+      },
+      "SubtitleCueDetailDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "position",
+          "start_ms",
+          "end_ms",
+          "duration_ms",
+          "text",
+          "lines",
+          "max_line_chars",
+          "char_limit",
+          "violations",
+          "edited"
+        ],
+        "properties": {
+          "char_limit": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "duration_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "edited": {
+            "type": "boolean"
+          },
+          "end_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "max_line_chars": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "position": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "start_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "text": {
+            "type": "string"
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SubtitleCueDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "position",
+          "start_ms",
+          "end_ms",
+          "text",
+          "edited"
+        ],
+        "properties": {
+          "edited": {
+            "type": "boolean"
+          },
+          "end_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "position": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "start_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      },
+      "SubtitleStyleDto": {
+        "type": "object",
+        "required": [
+          "enabled",
+          "font",
+          "size_pct",
+          "position",
+          "text_color",
+          "outline_width_px",
+          "bg_opacity_pct"
+        ],
+        "properties": {
+          "bg_opacity_pct": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "font": {
+            "type": "string"
+          },
+          "outline_width_px": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "position": {
+            "type": "string"
+          },
+          "size_pct": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "text_color": {
+            "type": "string"
+          }
+        }
+      },
+      "SubtitlesStateResponse": {
+        "type": "object",
+        "required": [
+          "project_id",
+          "aspect_ratio",
+          "max_chars_per_line",
+          "style",
+          "cues"
+        ],
+        "properties": {
+          "aspect_ratio": {
+            "type": "string"
+          },
+          "cues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubtitleCueDetailDto"
+            }
+          },
+          "max_chars_per_line": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "style": {
+            "$ref": "#/components/schemas/SubtitleStyleDto"
+          }
+        }
+      },
+      "SwapSectionsRequest": {
+        "type": "object",
+        "required": [
+          "section_id_a",
+          "section_id_b"
+        ],
+        "properties": {
+          "section_id_a": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "section_id_b": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "TimelineSceneDto": {
+        "type": "object",
+        "required": [
+          "index",
+          "section_id",
+          "text",
+          "start_ms",
+          "end_ms",
+          "duration_ms",
+          "fit_mode",
+          "focal_x",
+          "focal_y",
+          "effect",
+          "effect_overridden",
+          "resolved_preset",
+          "resolved_has_shake",
+          "flags",
+          "source"
+        ],
+        "properties": {
+          "confidence": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "effect": {
+            "$ref": "#/components/schemas/SceneEffectDto"
+          },
+          "effect_overridden": {
+            "type": "boolean"
+          },
+          "end_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "filename": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fit_mode": {
+            "type": "string"
+          },
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "focal_x": {
+            "type": "number",
+            "format": "float"
+          },
+          "focal_y": {
+            "type": "number",
+            "format": "float"
+          },
+          "index": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "media_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "preview_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resolved_has_shake": {
+            "type": "boolean"
+          },
+          "resolved_preset": {
+            "type": "string"
+          },
+          "section_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source": {
+            "type": "string"
+          },
+          "start_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "text": {
+            "type": "string"
+          },
+          "thumb_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "TimelineStateResponse": {
+        "type": "object",
+        "required": [
+          "project_id",
+          "aspect_ratio",
+          "fps",
+          "effect_seed",
+          "duration_ms",
+          "has_peaks",
+          "silences",
+          "boundaries",
+          "flagged_boundary_indices",
+          "scenes",
+          "subtitle_cues",
+          "subtitle_style",
+          "music_settings"
+        ],
+        "properties": {
+          "aspect_ratio": {
+            "type": "string"
+          },
+          "audio_filename": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "audio_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "boundaries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoundaryDto"
+            }
+          },
+          "duration_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "effect_seed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "flagged_boundary_indices": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "fps": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "has_peaks": {
+            "type": "boolean"
+          },
+          "include_tilt_in_auto": {
+            "type": "boolean"
+          },
+          "music_filename": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "music_settings": {
+            "$ref": "#/components/schemas/MusicSettingsDto"
+          },
+          "music_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scenes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimelineSceneDto"
+            }
+          },
+          "silences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SilenceGapDto"
+            }
+          },
+          "stickers": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "subtitle_cues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubtitleCueDto"
+            }
+          },
+          "subtitle_style": {
+            "$ref": "#/components/schemas/SubtitleStyleDto"
+          }
+        }
+      },
+      "TranscriptSummaryDto": {
+        "type": "object",
+        "required": [
+          "engine",
+          "model",
+          "language",
+          "word_count",
+          "words"
+        ],
+        "properties": {
+          "engine": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "word_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "words": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TranscriptWordDto"
+            }
+          }
+        }
+      },
+      "TranscriptWordDto": {
+        "type": "object",
+        "required": [
+          "word",
+          "start_ms",
+          "end_ms",
+          "probability"
+        ],
+        "properties": {
+          "end_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "probability": {
+            "type": "number",
+            "format": "float"
+          },
+          "start_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "word": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateBoundaryRequest": {
+        "type": "object",
+        "required": [
+          "time_ms"
+        ],
+        "properties": {
+          "time_ms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transition": {}
+        }
+      },
+      "UpdateMusicSettingsRequest": {
+        "type": "object",
+        "properties": {
+          "crossfade_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "minimum": 0
+          },
+          "duck_db": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float"
+          },
+          "ducking_enabled": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "fade_in_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "minimum": 0
+          },
+          "fade_out_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "minimum": 0
+          },
+          "loop_enabled": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "volume_db": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float"
+          }
+        }
+      },
+      "UpdateProjectRequest": {
+        "type": "object",
+        "properties": {
+          "aspect_ratio": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "settings": {},
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "UpdateSceneEffectRequest": {
+        "type": "object",
+        "properties": {
+          "clear_manual_preset": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "clear_manual_shake": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "easing": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fit_mode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "focal_x": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float"
+          },
+          "focal_y": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float"
+          },
+          "intensity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "manual_preset": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "manual_shake": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "reset_to_auto": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "visual_effect": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "UpdateSubtitleCueRequest": {
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "end_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "start_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateUserStatusRequest": {
+        "type": "object",
+        "required": [
+          "is_active"
+        ],
+        "properties": {
+          "is_active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpsertSectionItem": {
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      },
+      "UserProfile": {
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "name",
+          "role",
+          "must_change_password",
+          "storage_quota_bytes",
+          "storage_used_bytes"
+        ],
+        "properties": {
+          "csrf_token": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "must_change_password": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "storage_quota_bytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "storage_used_bytes": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Liveness and readiness health probes"
+    },
+    {
+      "name": "Auth",
+      "description": "Authentication and session management"
+    },
+    {
+      "name": "Admin",
+      "description": "Administrative user operations"
+    },
+    {
+      "name": "Projects",
+      "description": "Project creation and metadata management"
+    },
+    {
+      "name": "Scripts",
+      "description": "Script and section persistence"
+    },
+    {
+      "name": "Media",
+      "description": "Direct-to-storage media uploads and library management"
+    },
+    {
+      "name": "Assignments",
+      "description": "Section image assignments and reordering"
+    },
+    {
+      "name": "Narration",
+      "description": "Narration upload, audio processing jobs, alignment boundaries, and subtitles"
+    },
+    {
+      "name": "Music",
+      "description": "Background music track upload, looping, fade-in/out, and voice ducking settings"
+    },
+    {
+      "name": "Subtitles",
+      "description": "Broadcast subtitle rule validation, cue split/merge, and burn-in style configuration"
+    },
+    {
+      "name": "Timeline",
+      "description": "Timeline state retrieval and batch boundary timing adjustments"
+    },
+    {
+      "name": "Effects",
+      "description": "Camera motion effects, transitions, re-roll seeds, and compiled RenderSpec"
+    },
+    {
+      "name": "Exports",
+      "description": "MP4 video rendering queue, SSE progress, retry, and signed download"
+    }
+  ]
+}

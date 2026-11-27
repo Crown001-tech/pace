@@ -1,1 +1,16 @@
+pub mod admin;
+pub mod assignments;
+pub mod auth;
+pub mod effects;
+pub mod exports;
+pub mod extension;
 pub mod health;
+pub mod jobs;
+pub mod media;
+pub mod media_sources;
+pub mod music;
+pub mod narration;
+pub mod projects;
+pub mod scripts;
+pub mod timeline;
+pub mod uploads;

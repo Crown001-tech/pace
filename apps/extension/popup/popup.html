@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PACE × Google Flow</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0e0c15;
+      --card: #151220;
+      --border: #2a2538;
+      --text: #f3f0fa;
+      --muted: #9b92b3;
+      --violet: #3b0a7a;
+      --lavender: #a970ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      width: 340px;
+      padding: 14px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .badge {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(169, 112, 255, 0.16);
+      color: var(--lavender);
+      border: 1px solid rgba(169, 112, 255, 0.35);
+      font-weight: 600;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0b0912;
+      color: var(--text);
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--lavender);
+    }
+    .btn {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.92; }
+    .btn-primary {
+      background: var(--lavender);
+      color: #140b29;
+    }
+    .btn-secondary {
+      background: #1f1b2e;
+      color: var(--text);
+      border: 1px solid var(--border);
+      margin-top: 6px;
+    }
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      margin-top: 6px;
+    }
+    .status {
+      font-size: 11px;
+      margin-top: 6px;
+      min-height: 16px;
+      color: var(--lavender);
+    }
+    .status.err { color: #fca5a5; }
+    .recent-list {
+      max-height: 120px;
+      overflow-y: auto;
+      font-size: 11px;
+    }
+    .recent-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: var(--muted);
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <span>PACE × Flow</span>
+    </div>
+    <span id="conn-badge" class="badge">Disconnected</span>
+  </div>
+
+  <!-- Pairing View -->
+  <div id="pair-view" class="card">
+    <label for="api-url">PACE API URL</label>
+    <input id="api-url" type="url" value="http://localhost:8080" placeholder="http://localhost:8080" />
+
+    <label for="pair-code">One-Time Pairing Code (from PACE)</label>
+    <input id="pair-code" type="text" placeholder="PACE-XXXX-XXXX" />
+
+    <button id="pair-btn" class="btn btn-primary">Connect Extension</button>
+    <div id="pair-status" class="status"></div>
+  </div>
+
+  <!-- Connected View -->
+  <div id="connected-view" class="hidden">
+    <div class="card">
+      <div style="font-size:11px; color:var(--muted); margin-bottom:8px;">
+        Signed in as <strong id="user-email" style="color:var(--text);"></strong>
+      </div>
+
+      <label for="project-select">Target PACE Project</label>
+      <select id="project-select"></select>
+
+      <button id="refresh-btn" class="btn btn-secondary">Refresh Projects</button>
+      <button id="open-flow-btn" class="btn btn-primary" style="margin-top:8px;">Open Google Flow</button>
+      <button id="disconnect-btn" class="btn btn-danger">Disconnect</button>
+      <div id="conn-status" class="status"></div>
+    </div>
+
+    <div class="card">
+      <label>Recent Sends to PACE</label>
+      <div id="recent-list" class="recent-list">
+        <div style="color:var(--muted);">No media sent yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="../dist/popup/popup.js"></script>
+</body>
+</html>

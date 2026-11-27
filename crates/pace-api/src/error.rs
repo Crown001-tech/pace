@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 /// RFC 9457 Problem Details payload.
 /// Returned for all 4xx and 5xx API errors with Content-Type: application/problem+json.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, utoipa::ToSchema)]
 pub struct ProblemDetails {
     #[serde(rename = "type")]
     pub problem_type: String,
@@ -30,6 +30,7 @@ pub enum ErrorCode {
     Forbidden,
     NotFound,
     ProjectVersionConflict,
+    Conflict,
     BadRequest,
     InvalidCsrfToken,
     UploadQuotaExceeded,
@@ -47,6 +48,7 @@ impl ErrorCode {
             Self::Forbidden => "FORBIDDEN",
             Self::NotFound => "NOT_FOUND",
             Self::ProjectVersionConflict => "PROJECT_VERSION_CONFLICT",
+            Self::Conflict => "CONFLICT",
             Self::BadRequest => "BAD_REQUEST",
             Self::InvalidCsrfToken => "INVALID_CSRF_TOKEN",
             Self::UploadQuotaExceeded => "UPLOAD_QUOTA_EXCEEDED",
@@ -64,6 +66,7 @@ impl ErrorCode {
             Self::Forbidden => "Access forbidden",
             Self::NotFound => "Resource not found",
             Self::ProjectVersionConflict => "Project version conflict",
+            Self::Conflict => "Conflict",
             Self::BadRequest => "Invalid request",
             Self::InvalidCsrfToken => "Invalid CSRF token",
             Self::UploadQuotaExceeded => "Storage quota exceeded",
@@ -80,7 +83,7 @@ impl ErrorCode {
                 StatusCode::FORBIDDEN
             }
             Self::NotFound => StatusCode::NOT_FOUND,
-            Self::ProjectVersionConflict => StatusCode::CONFLICT,
+            Self::ProjectVersionConflict | Self::Conflict => StatusCode::CONFLICT,
             Self::BadRequest => StatusCode::BAD_REQUEST,
             Self::UploadQuotaExceeded => StatusCode::PAYLOAD_TOO_LARGE,
             Self::ServiceUnavailable => StatusCode::SERVICE_UNAVAILABLE,
@@ -113,6 +116,9 @@ pub enum ApiError {
     #[error("Project version conflict: current version is {current_version}")]
     ProjectVersionConflict { current_version: i32 },
 
+    #[error("Conflict: {0}")]
+    Conflict(String),
+
     #[error("Bad request: {0}")]
     BadRequest(String),
 
@@ -126,10 +132,49 @@ pub enum ApiError {
     ServiceUnavailable(String),
 
     #[error("Database error: {0}")]
-    Database(#[from] pace_db::DbError),
+    Database(pace_db::DbError),
 
     #[error("Internal server error: {0}")]
     Internal(String),
+}
+
+impl From<pace_db::DbError> for ApiError {
+    fn from(err: pace_db::DbError) -> Self {
+        match err {
+            pace_db::DbError::NotFound => ApiError::NotFound("Resource not found".to_string()),
+            pace_db::DbError::VersionConflict { actual, .. } => {
+                ApiError::ProjectVersionConflict {
+                    current_version: actual,
+                }
+            }
+            pace_db::DbError::AccountLocked => ApiError::AccountLocked,
+            pace_db::DbError::QuotaExceeded {
+                current_bytes,
+                max_bytes,
+            } => ApiError::QuotaExceeded {
+                current_bytes,
+                max_bytes,
+            },
+            pace_db::DbError::Validation(msg) => ApiError::BadRequest(msg),
+            other => ApiError::Database(other),
+        }
+    }
+}
+
+impl From<pace_jobs::JobError> for ApiError {
+    fn from(err: pace_jobs::JobError) -> Self {
+        match err {
+            pace_jobs::JobError::Sqlx(sqlx_err) => {
+                ApiError::Database(pace_db::DbError::Sqlx(sqlx_err))
+            }
+        }
+    }
+}
+
+impl From<pace_db::sqlx::Error> for ApiError {
+    fn from(err: pace_db::sqlx::Error) -> Self {
+        ApiError::Database(pace_db::DbError::Sqlx(err))
+    }
 }
 
 impl ApiError {
@@ -142,6 +187,7 @@ impl ApiError {
             Self::Forbidden(_) => ErrorCode::Forbidden,
             Self::NotFound(_) => ErrorCode::NotFound,
             Self::ProjectVersionConflict { .. } => ErrorCode::ProjectVersionConflict,
+            Self::Conflict(_) => ErrorCode::Conflict,
             Self::BadRequest(_) => ErrorCode::BadRequest,
             Self::InvalidCsrfToken => ErrorCode::InvalidCsrfToken,
             Self::QuotaExceeded { .. } => ErrorCode::UploadQuotaExceeded,
@@ -223,3 +269,4 @@ mod tests {
         assert_eq!(problem.detail, "An unexpected internal error occurred.");
     }
 }
+

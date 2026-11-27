@@ -44,12 +44,14 @@ pub async fn find_active_session_by_token_hash(
     Ok(session)
 }
 
+/// Extends an active session's rolling 30-day expiry. Never resurrects an already-expired session.
 pub async fn touch_session(pool: &PgPool, session_id: Uuid) -> Result<(), DbError> {
     sqlx::query!(
         r#"
         UPDATE sessions
-        SET last_seen_at = now()
-        WHERE id = $1
+        SET last_seen_at = now(),
+            expires_at = now() + interval '30 days'
+        WHERE id = $1 AND expires_at > now()
         "#,
         session_id
     )
@@ -73,6 +75,16 @@ pub async fn delete_session(pool: &PgPool, session_id: Uuid) -> Result<(), DbErr
     Ok(())
 }
 
+/// Removes expired sessions to prevent unbounded session table growth.
+pub async fn cleanup_expired_sessions(pool: &PgPool) -> Result<u64, DbError> {
+    let count = sqlx::query("DELETE FROM sessions WHERE expires_at <= now()")
+        .execute(pool)
+        .await?
+        .rows_affected();
+
+    Ok(count)
+}
+
 pub async fn delete_all_user_sessions(pool: &PgPool, user_id: Uuid) -> Result<u64, DbError> {
     let count = sqlx::query!(
         r#"
@@ -80,6 +92,27 @@ pub async fn delete_all_user_sessions(pool: &PgPool, user_id: Uuid) -> Result<u6
         WHERE user_id = $1
         "#,
         user_id
+    )
+    .execute(pool)
+    .await?
+    .rows_affected();
+
+    Ok(count)
+}
+
+/// Terminates every active session for `user_id` except `keep_session_id` (used on password change).
+pub async fn delete_other_user_sessions(
+    pool: &PgPool,
+    user_id: Uuid,
+    keep_session_id: Uuid,
+) -> Result<u64, DbError> {
+    let count = sqlx::query!(
+        r#"
+        DELETE FROM sessions
+        WHERE user_id = $1 AND id <> $2
+        "#,
+        user_id,
+        keep_session_id
     )
     .execute(pool)
     .await?

@@ -32,10 +32,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("Database schema migrations up to date");
 
     // 4. Build Axum application router
-    let state = AppState {
-        db: pool,
-        config: config.clone(),
-    };
+    let state = AppState::new(pool, config.clone());
     let app = create_app(state);
 
     // 5. Bind TCP listener

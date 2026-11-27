@@ -82,6 +82,9 @@ pub struct LayerPlan {
     pub dst: RectF,
     /// Layer opacity (`0.0..=1.0`).
     pub opacity: f32,
+    /// Roll rotation in radians around the center of `dst`.
+    #[serde(default)]
+    pub rotation_rad: f32,
 }
 
 /// Calculates the source crop rectangle for `Fill` mode (`EFX-04`, `EFX-05`).
@@ -142,11 +145,24 @@ pub fn calculate_fit_layers(
     match mode {
         FitMode::Fill => {
             let crop = calculate_fill_crop(image_size, frame_size, focal, cam);
+            let theta = cam.rotation_rad;
+            let dst = if theta.abs() > 1e-6 {
+                let aspect_max = (frame_size.w / frame_size.h).max(frame_size.h / frame_size.w);
+                let rot_scale = theta.cos().abs() + aspect_max * theta.sin().abs();
+                let dst_w = frame_size.w * rot_scale;
+                let dst_h = frame_size.h * rot_scale;
+                let dst_x = (frame_size.w - dst_w) * 0.5;
+                let dst_y = (frame_size.h - dst_h) * 0.5;
+                RectF::new(dst_x, dst_y, dst_w, dst_h)
+            } else {
+                RectF::new(0.0, 0.0, frame_size.w, frame_size.h)
+            };
             vec![LayerPlan {
                 kind: LayerKind::Image,
                 src: crop,
-                dst: RectF::new(0.0, 0.0, frame_size.w, frame_size.h),
+                dst,
                 opacity: 1.0,
+                rotation_rad: theta,
             }]
         }
         FitMode::FitBlur => {
@@ -162,6 +178,7 @@ pub fn calculate_fit_layers(
                 src: bg_crop,
                 dst: RectF::new(0.0, 0.0, frame_size.w, frame_size.h),
                 opacity: 1.0,
+                rotation_rad: 0.0,
             };
 
             // Layer 1: Foreground image. Entire image fits inside the frame (letterboxed or pillarboxed).
@@ -188,6 +205,7 @@ pub fn calculate_fit_layers(
                 src: RectF::new(0.0, 0.0, image_size.w, image_size.h),
                 dst: RectF::new(dst_x, dst_y, dst_w, dst_h),
                 opacity: 1.0,
+                rotation_rad: cam.rotation_rad,
             };
 
             vec![bg_layer, fg_layer]

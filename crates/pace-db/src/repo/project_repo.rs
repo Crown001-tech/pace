@@ -170,3 +170,62 @@ pub async fn delete_project(
 
     Ok(())
 }
+
+/// Atomically advances a project's `effect_seed` and clears un-overridden scene effects
+/// so non-overridden scenes receive fresh automatic presets while manual edits stay pinned.
+pub async fn reroll_project_effects<F>(
+    pool: &PgPool,
+    project_id: Uuid,
+    owner_id: Uuid,
+    compute_next_seed: F,
+) -> Result<i64, DbError>
+where
+    F: FnOnce(i64) -> i64,
+{
+    let mut tx = pool.begin().await?;
+
+    let current_seed: Option<i64> = sqlx::query_scalar(
+        r#"
+        SELECT effect_seed
+        FROM projects
+        WHERE id = $1 AND owner_id = $2 AND deleted_at IS NULL
+        FOR UPDATE
+        "#,
+    )
+    .bind(project_id)
+    .bind(owner_id)
+    .fetch_optional(&mut *tx)
+    .await?;
+
+    let seed = current_seed.ok_or(DbError::NotFound)?;
+    let next_seed = compute_next_seed(seed);
+
+    sqlx::query(
+        r#"
+        UPDATE projects
+        SET effect_seed = $2,
+            updated_at = now()
+        WHERE id = $1
+        "#,
+    )
+    .bind(project_id)
+    .bind(next_seed)
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query(
+        r#"
+        UPDATE scene_media
+        SET effect = '{}'::jsonb,
+            updated_at = now()
+        WHERE section_id IN (SELECT id FROM sections WHERE project_id = $1)
+          AND effect_overridden = false
+        "#,
+    )
+    .bind(project_id)
+    .execute(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
+    Ok(next_seed)
+}
