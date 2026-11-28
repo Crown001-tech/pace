@@ -4,52 +4,52 @@
 
 @layer base {
   :root {
-    /* Soft Lavender Alabaster — eye-friendly daylight studio */
-    --background: 250 100% 98%;        /* #F5F3FF */
-    --foreground: 256 26% 12%;         /* #1B1726 */
+    /* Porcelain Lavender Studio Light — tactile soft-3D depth with crisp white surfaces */
+    --background: 248 45% 96%;         /* #F1EFFA */
+    --foreground: 248 32% 12%;         /* #151427 */
     --card: 0 0% 100%;                 /* #FFFFFF */
-    --card-foreground: 256 26% 12%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 256 26% 12%;
-    --primary: 266 85% 26%;            /* #3B0A7A */
+    --card-foreground: 248 32% 12%;
+    --popover: 0 0% 100%;              /* #FFFFFF */
+    --popover-foreground: 248 32% 12%;
+    --primary: 263 72% 46%;            /* #5B21B6 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 252 45% 94%;          /* #ECE7FA */
-    --secondary-foreground: 256 26% 18%;
-    --muted: 252 38% 93%;
-    --muted-foreground: 255 14% 42%;   /* #645C7A */
+    --secondary: 248 35% 93%;          /* #E9E6F6 */
+    --secondary-foreground: 248 28% 18%;
+    --muted: 248 30% 93%;
+    --muted-foreground: 248 14% 44%;   /* #62607E */
     --accent: 264 100% 72%;            /* #A970FF */
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 50%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 254 28% 89%;             /* #E2DCF0 */
-    --input: 254 24% 85%;
-    --ring: 264 100% 72%;
-    --radius: 0.625rem;
+    --border: 248 28% 88%;             /* #DAD6EC */
+    --input: 248 28% 87%;
+    --ring: 263 82% 58%;
+    --radius: 0.875rem;
     --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
   .dark {
-    /* Velvet Obsidian Studio — layered plum-charcoal for long editing sessions */
-    --background: 253 27% 6%;          /* #0E0C15 */
-    --foreground: 258 45% 96%;         /* #F3F0FA */
-    --card: 254 27% 10%;               /* #151220 */
-    --card-foreground: 258 45% 96%;
-    --popover: 254 27% 13%;            /* #1C182B */
-    --popover-foreground: 258 45% 96%;
-    --primary: 264 100% 72%;           /* #A970FF */
-    --primary-foreground: 260 56% 10%; /* #140B29 */
-    --secondary: 254 24% 14%;          /* #1F1B2E */
-    --secondary-foreground: 256 25% 90%;
-    --muted: 254 22% 14%;
-    --muted-foreground: 256 17% 64%;   /* #9B92B3 */
+    /* Dimensional Midnight Indigo Dark — rich satin slate cards, rim lighting, zero flat black */
+    --background: 234 32% 9%;          /* #0F121E */
+    --foreground: 240 33% 97%;         /* #F4F5FA */
+    --card: 235 28% 14%;               /* #191C2E */
+    --card-foreground: 240 33% 97%;
+    --popover: 235 28% 16%;            /* #1E2236 */
+    --popover-foreground: 240 33% 97%;
+    --primary: 262 83% 64%;            /* #8B5CF6 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 235 25% 19%;          /* #24283E */
+    --secondary-foreground: 240 26% 93%;
+    --muted: 235 24% 18%;
+    --muted-foreground: 236 16% 67%;   /* #9CA0BA */
     --accent: 264 100% 72%;            /* #A970FF */
-    --accent-foreground: 260 56% 10%;
-    --destructive: 0 68% 54%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 68% 56%;
     --destructive-foreground: 0 0% 98%;
-    --border: 254 20% 18%;             /* #2A2538 */
-    --input: 254 20% 21%;
-    --ring: 264 100% 72%;
+    --border: 235 22% 23%;             /* #2E334D */
+    --input: 235 22% 24%;
+    --ring: 262 83% 64%;
   }
 
   html {
@@ -63,6 +63,7 @@
   }
 
   h1, h2, h3 {
+    font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
     letter-spacing: -0.025em;
   }
 
@@ -71,18 +72,143 @@
   }
 }
 
-/* Soft studio elevation shadows */
+/* Dimensional card elevation with top specular catch-light in dark mode */
 .studio-card {
-  box-shadow: 0 1px 2px rgba(59, 10, 122, 0.04), 0 8px 24px -10px rgba(59, 10, 122, 0.08);
+  box-shadow:
+    0 2px 4px rgba(36, 20, 84, 0.04),
+    0 18px 40px -14px rgba(36, 20, 84, 0.11),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 .dark .studio-card {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px -12px rgba(0, 0, 0, 0.55);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.35),
+    0 22px 48px -16px rgba(4, 6, 18, 0.72),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
 }
 
-/* Smooth theme transition without triggering on page load */
+/* Sculpted Soft-3D Studio Background & Tactile Controls */
+.pace-sculpted-canvas {
+  background: linear-gradient(140deg, #F6F4FF 0%, #EAE5FA 52%, #DFD7F8 100%);
+}
+.dark .pace-sculpted-canvas {
+  background: radial-gradient(circle at 18% 18%, #1E1B3A 0%, #121526 50%, #0C0E1A 100%);
+}
+
+.pace-3d-ring {
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.58), rgba(214, 202, 252, 0.32));
+  box-shadow:
+    20px 24px 52px rgba(76, 29, 149, 0.12),
+    -12px -12px 36px rgba(255, 255, 255, 0.9),
+    inset 10px 10px 24px rgba(109, 40, 217, 0.09),
+    inset -10px -10px 24px rgba(255, 255, 255, 0.85);
+}
+.dark .pace-3d-ring {
+  border: 1px solid rgba(169, 112, 255, 0.22);
+  background: linear-gradient(145deg, rgba(44, 48, 82, 0.55), rgba(20, 23, 42, 0.65));
+  box-shadow:
+    20px 28px 60px rgba(0, 0, 0, 0.55),
+    inset 2px 2px 12px rgba(169, 112, 255, 0.14),
+    inset -6px -6px 18px rgba(0, 0, 0, 0.45);
+}
+
+.pace-3d-orb {
+  background: radial-gradient(circle at 32% 28%, #FFFFFF 0%, #DDD2FF 42%, #A970FF 100%);
+  box-shadow:
+    14px 20px 38px rgba(76, 29, 149, 0.18),
+    inset -6px -8px 16px rgba(76, 29, 149, 0.18),
+    inset 4px 4px 12px rgba(255, 255, 255, 0.9);
+}
+.dark .pace-3d-orb {
+  background: radial-gradient(circle at 32% 28%, #C4A1FF 0%, #6D28D9 52%, #2B125E 100%);
+  box-shadow:
+    0 20px 44px rgba(0, 0, 0, 0.6),
+    0 0 36px rgba(139, 92, 246, 0.25),
+    inset 3px 4px 10px rgba(255, 255, 255, 0.35);
+}
+
+.pace-3d-medallion {
+  background: linear-gradient(145deg, #FFFFFF 0%, #ECE8FA 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    10px 14px 30px rgba(66, 28, 138, 0.14),
+    -8px -8px 22px rgba(255, 255, 255, 0.95),
+    inset 0 2px 3px rgba(255, 255, 255, 1);
+}
+.dark .pace-3d-medallion {
+  background: linear-gradient(145deg, #262A44 0%, #171A2C 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, 0.55),
+    inset 0 1px 1px rgba(255, 255, 255, 0.16);
+}
+
+.pace-3d-input {
+  background: linear-gradient(180deg, #EAE6F7 0%, #F2EFFB 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.92);
+  box-shadow:
+    inset 3px 4px 9px rgba(68, 36, 128, 0.08),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.9),
+    0 2px 6px rgba(68, 36, 128, 0.04);
+}
+.pace-3d-input:focus {
+  background: #FFFFFF;
+  border-color: #8B5CF6;
+  box-shadow:
+    0 0 0 4px rgba(139, 92, 246, 0.16),
+    0 6px 16px rgba(76, 29, 149, 0.08);
+}
+.dark .pace-3d-input {
+  background: linear-gradient(180deg, #121524 0%, #171A2C 100%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    inset 0 3px 8px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.dark .pace-3d-input:focus {
+  background: #1B1F35;
+  border-color: #A970FF;
+  box-shadow:
+    0 0 0 4px rgba(169, 112, 255, 0.18),
+    inset 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+.pace-3d-cta {
+  background: linear-gradient(180deg, #8B5CF6 0%, #6D28D9 52%, #4C1D95 100%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 12px 26px -6px rgba(91, 33, 182, 0.52),
+    inset 0 2px 2px rgba(255, 255, 255, 0.42),
+    inset 0 -2px 4px rgba(28, 7, 62, 0.35);
+}
+.pace-3d-cta:hover {
+  filter: brightness(1.06);
+}
+
+/* Radial theme sweep originating from the toggle button */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
 html.theme-transitioning,
 html.theme-transitioning * {
-  transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, box-shadow 200ms ease !important;
+  transition:
+    background-color 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    fill 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    stroke 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
 /* Studio precision scrollbars */
@@ -96,7 +222,7 @@ html.theme-transitioning * {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(155, 146, 179, 0.25);
+  background: rgba(152, 147, 174, 0.28);
   border-radius: 3px;
 }
 
@@ -115,4 +241,33 @@ html.theme-transitioning * {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@keyframes pace-ken-burns {
+  0% {
+    transform: scale(1.03) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.1) translate3d(-1.2%, -0.8%, 0);
+  }
+  100% {
+    transform: scale(1.03) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes pace-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+.animate-ken-burns {
+  animation: pace-ken-burns 16s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: pace-float 7s ease-in-out infinite;
 }

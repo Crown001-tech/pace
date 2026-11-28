@@ -21,8 +21,8 @@ export function ThemeToggle({
       <div
         className={cn(
           variant === "compact"
-            ? "h-8 w-8 rounded-[10px] bg-secondary"
-            : "h-8 w-28 rounded-[10px] bg-secondary",
+            ? "h-8 w-8 rounded-[5px] bg-secondary"
+            : "h-8 w-28 rounded-[5px] bg-secondary",
           className
         )}
         aria-hidden="true"
@@ -32,13 +32,21 @@ export function ThemeToggle({
 
   const isDark = theme === "dark";
 
+  const getOrigin = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (e.clientX !== 0 || e.clientY !== 0) {
+      return { x: e.clientX, y: e.clientY };
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  };
+
   if (variant === "compact") {
     return (
       <button
         type="button"
-        onClick={toggleTheme}
+        onClick={(e) => toggleTheme(getOrigin(e))}
         className={cn(
-          "relative flex h-8 w-8 items-center justify-center rounded-[10px] bg-secondary/80 text-muted-foreground hover:bg-secondary hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-lavender active:scale-95 transition-all",
+          "relative flex h-9 w-9 items-center justify-center rounded-xl text-foreground/80 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 transition-all",
           className
         )}
         title={isDark ? "Switch to light theme (T)" : "Switch to dark theme (T)"}
@@ -65,7 +73,7 @@ export function ThemeToggle({
       role="radiogroup"
       aria-label="Color theme selector"
       className={cn(
-        "inline-flex items-center rounded-[10px] bg-secondary/80 p-0.5 text-xs select-none",
+        "inline-flex items-center rounded-[5px] border border-border bg-secondary/70 p-0.5 text-xs select-none",
         className
       )}
     >
@@ -73,16 +81,16 @@ export function ThemeToggle({
         type="button"
         role="radio"
         aria-checked={!isDark}
-        onClick={() => setThemeMode("light")}
+        onClick={(e) => setThemeMode("light", getOrigin(e))}
         className={cn(
-          "flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] font-medium transition-all text-xs",
+          "flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] font-medium transition-all text-xs",
           !isDark
             ? "bg-card text-foreground shadow-sm font-semibold"
             : "text-muted-foreground hover:text-foreground"
         )}
         title="Light theme"
       >
-        <Sun className={cn("h-3.5 w-3.5", !isDark ? "text-amber-500" : "text-muted-foreground")} />
+        <Sun className={cn("h-3.5 w-3.5", !isDark ? "text-[#D48817]" : "text-muted-foreground")} />
         <span>Light</span>
       </button>
 
@@ -90,9 +98,9 @@ export function ThemeToggle({
         type="button"
         role="radio"
         aria-checked={isDark}
-        onClick={() => setThemeMode("dark")}
+        onClick={(e) => setThemeMode("dark", getOrigin(e))}
         className={cn(
-          "flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] font-medium transition-all text-xs",
+          "flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] font-medium transition-all text-xs",
           isDark
             ? "bg-card text-foreground shadow-sm font-semibold"
             : "text-muted-foreground hover:text-foreground"

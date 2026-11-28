@@ -22,25 +22,25 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      "inline-flex items-center justify-center rounded-[10px] font-medium touch-manipulation select-none transition-all duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lavender/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-45 disabled:pointer-events-none active:scale-[0.98]";
+      "inline-flex items-center justify-center rounded-xl font-semibold touch-manipulation select-none transition-all duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-45 disabled:pointer-events-none active:scale-[0.98]";
 
     const variants = {
       primary:
-        "bg-brand-violet text-white hover:bg-brand-dark shadow-[0_1px_2px_rgba(59,10,122,0.22),inset_0_1px_0_rgba(255,255,255,0.16)] dark:bg-brand-lavender dark:text-[#140B29] dark:font-semibold dark:hover:bg-brand-hover dark:shadow-[0_2px_12px_-2px_rgba(169,112,255,0.35),inset_0_1px_0_rgba(255,255,255,0.3)]",
+        "pace-3d-cta text-white",
       secondary:
-        "bg-secondary text-secondary-foreground hover:bg-secondary/75",
+        "bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80",
       outline:
-        "border border-border bg-card/85 text-foreground hover:bg-secondary/80 hover:border-brand-lavender/40 shadow-[0_1px_2px_rgba(0,0,0,0.03)]",
+        "border border-border bg-card text-foreground hover:bg-secondary/70 hover:border-brand-lavender/45",
       ghost:
-        "bg-transparent text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
+        "bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground",
       destructive:
-        "bg-red-600 text-white hover:bg-red-700 shadow-sm dark:bg-red-500/15 dark:text-red-300 dark:hover:bg-red-500/25",
+        "bg-red-600 text-white hover:bg-red-700 dark:bg-red-500/20 dark:text-red-300 dark:border dark:border-red-500/35 dark:hover:bg-red-500/30",
     };
 
     const sizes = {
       sm: "h-8 px-3 text-xs gap-1.5",
-      md: "h-9 px-4 text-sm gap-2",
-      lg: "h-11 px-5 text-sm gap-2",
+      md: "h-9 px-3.5 text-sm gap-2",
+      lg: "h-11 px-4 text-sm gap-2",
       icon: "h-9 w-9 p-0",
     };
 

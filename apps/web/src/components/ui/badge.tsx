@@ -12,23 +12,23 @@ export function Badge({
 }: BadgeProps) {
   const variants = {
     default:
-      "bg-brand-violet/10 text-brand-violet dark:bg-brand-lavender/15 dark:text-brand-lavender",
+      "border border-[#8B5CF6]/35 bg-[#8B5CF6]/12 text-[#5B21B6] dark:text-[#C4B5FD]",
     secondary:
-      "bg-secondary text-secondary-foreground",
+      "border border-white/60 dark:border-white/10 bg-white/90 dark:bg-[#1E2236]/90 text-foreground backdrop-blur-md",
     outline:
-      "border border-border/80 text-muted-foreground bg-transparent",
+      "border border-border text-muted-foreground bg-transparent",
     success:
-      "bg-emerald-500/12 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+      "border border-emerald-500/35 bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 backdrop-blur-md",
     warning:
-      "bg-amber-500/12 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
+      "border border-amber-500/35 bg-amber-500/15 text-amber-800 dark:text-amber-300 backdrop-blur-md",
     cyan:
-      "bg-brand-lavender/12 text-brand-violet dark:bg-brand-lavender/15 dark:text-brand-lavender",
+      "border border-border bg-secondary text-foreground",
   };
 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-[6px] px-2 py-0.5 text-[11px] font-medium tracking-tight leading-none transition-colors",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold leading-none transition-colors shadow-sm",
         variants[variant],
         className
       )}

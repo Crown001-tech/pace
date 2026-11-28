@@ -13,7 +13,7 @@ interface ThemeStoreState {
 }
 
 const useThemeStore = create<ThemeStoreState>((set) => ({
-  theme: "dark",
+  theme: "light",
   mounted: false,
   setTheme: (theme) => set({ theme }),
   setMounted: (mounted) => set({ mounted }),
@@ -21,21 +21,8 @@ const useThemeStore = create<ThemeStoreState>((set) => ({
 
 let transitionTimer: number | null = null;
 
-function applyDocumentTheme(targetTheme: Theme, animate: boolean) {
-  if (typeof document === "undefined") return;
+function applyClassToRoot(targetTheme: Theme) {
   const root = document.documentElement;
-
-  if (animate) {
-    root.classList.add("theme-transitioning");
-    if (transitionTimer !== null) {
-      window.clearTimeout(transitionTimer);
-    }
-    transitionTimer = window.setTimeout(() => {
-      root.classList.remove("theme-transitioning");
-      transitionTimer = null;
-    }, 260);
-  }
-
   if (targetTheme === "dark") {
     root.classList.add("dark");
     root.style.colorScheme = "dark";
@@ -43,6 +30,74 @@ function applyDocumentTheme(targetTheme: Theme, animate: boolean) {
     root.classList.remove("dark");
     root.style.colorScheme = "light";
   }
+}
+
+export interface ThemeOrigin {
+  x: number;
+  y: number;
+}
+
+function applyDocumentTheme(
+  targetTheme: Theme,
+  animate: boolean,
+  origin?: ThemeOrigin
+) {
+  if (typeof document === "undefined") return;
+  const root = document.documentElement;
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+  if (animate && !prefersReducedMotion) {
+    const docWithVT = document as Document & {
+      startViewTransition?: (cb: () => void) => {
+        ready: Promise<void>;
+        finished: Promise<void>;
+      };
+    };
+    if (typeof docWithVT.startViewTransition === "function") {
+      const x = origin?.x ?? window.innerWidth - 36;
+      const y = origin?.y ?? 36;
+      const endRadius = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y)
+      );
+
+      const transition = docWithVT.startViewTransition(() => {
+        applyClassToRoot(targetTheme);
+      });
+
+      transition.ready
+        .then(() => {
+          document.documentElement.animate(
+            {
+              clipPath: [
+                `circle(0px at ${x}px ${y}px)`,
+                `circle(${endRadius}px at ${x}px ${y}px)`,
+              ],
+            },
+            {
+              duration: 600,
+              easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+              pseudoElement: "::view-transition-new(root)",
+            }
+          );
+        })
+        .catch(() => {});
+      return;
+    }
+
+    root.classList.add("theme-transitioning");
+    if (transitionTimer !== null) {
+      window.clearTimeout(transitionTimer);
+    }
+    transitionTimer = window.setTimeout(() => {
+      root.classList.remove("theme-transitioning");
+      transitionTimer = null;
+    }, 480);
+  }
+
+  applyClassToRoot(targetTheme);
 }
 
 /**
@@ -54,7 +109,7 @@ export function useGlobalThemeSync() {
   const setMounted = useThemeStore((s) => s.setMounted);
 
   useEffect(() => {
-    let initial: Theme = "dark";
+    let initial: Theme = "light";
     try {
       const saved = localStorage.getItem("pace_theme");
       if (saved === "light" || saved === "dark") {
@@ -110,9 +165,9 @@ export function useTheme() {
   const setTheme = useThemeStore((s) => s.setTheme);
 
   const setThemeMode = useCallback(
-    (targetTheme: Theme) => {
+    (targetTheme: Theme, origin?: ThemeOrigin) => {
       setTheme(targetTheme);
-      applyDocumentTheme(targetTheme, true);
+      applyDocumentTheme(targetTheme, true, origin);
       try {
         localStorage.setItem("pace_theme", targetTheme);
       } catch {}
@@ -120,10 +175,13 @@ export function useTheme() {
     [setTheme]
   );
 
-  const toggleTheme = useCallback(() => {
-    const current = useThemeStore.getState().theme;
-    setThemeMode(current === "dark" ? "light" : "dark");
-  }, [setThemeMode]);
+  const toggleTheme = useCallback(
+    (origin?: ThemeOrigin) => {
+      const current = useThemeStore.getState().theme;
+      setThemeMode(current === "dark" ? "light" : "dark", origin);
+    },
+    [setThemeMode]
+  );
 
   return { theme, setThemeMode, toggleTheme, mounted };
 }

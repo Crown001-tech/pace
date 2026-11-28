@@ -14,7 +14,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { LogOut, HardDrive, Puzzle, Copy, Check, Trash2 } from "lucide-react";
+import { LogOut, HardDrive, Puzzle, Copy, Check, Trash2, ChevronDown } from "lucide-react";
 import { formatBytes } from "@/lib/utils";
 
 interface TopNavProps {
@@ -24,6 +24,7 @@ interface TopNavProps {
 export function TopNav({ onHomeClick }: TopNavProps) {
   const { data: user } = useUser();
   const logout = useLogout();
+  const [accountOpen, setAccountOpen] = useState(false);
   const [extOpen, setExtOpen] = useState(false);
   const [pairingCode, setPairingCode] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
@@ -83,80 +84,112 @@ export function TopNav({ onHomeClick }: TopNavProps) {
     : "P";
 
   return (
-    <header className="sticky top-0 z-40 h-14 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-full max-w-[1600px] items-center justify-between px-4 sm:px-6">
-        {/* Brand */}
+    <header className="sticky top-0 z-40 h-15 py-2 border-b border-border/60 bg-background/85 backdrop-blur-xl">
+      <div className="mx-auto flex h-full max-w-[1400px] items-center justify-between px-4 sm:px-8">
+        {/* Official PACE Wordmark */}
         <button
           type="button"
           onClick={onHomeClick}
-          className="flex items-center rounded-[10px] px-1 py-1 text-left transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lavender"
+          className="flex items-center rounded-xl px-1 py-1 text-left transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <PaceLogo size="sm" className="sm:hidden" />
           <PaceLogo size="md" className="hidden sm:inline-flex" />
         </button>
 
-        {/* Right Controls */}
-        <div className="flex items-center gap-2.5 sm:gap-3.5">
+        {/* Quiet, Mature Right Controls */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
           {user && (
-            <div
-              className="hidden lg:flex items-center gap-2.5 rounded-[10px] bg-secondary/70 px-3 py-1.5 text-[11px] font-mono tabular-nums text-muted-foreground"
-              title={`${formatBytes(user.storage_used_bytes)} of ${formatBytes(user.storage_quota_bytes)} used`}
+            <button
+              type="button"
+              onClick={handleOpenExtModal}
+              title="Connect Google Flow Chrome Extension"
+              className="hidden sm:inline-flex h-9 items-center gap-1.5 rounded-xl border border-border bg-card/80 px-3 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-brand-lavender/45 transition-colors"
             >
-              <HardDrive className="h-3.5 w-3.5 text-brand-violet dark:text-brand-lavender shrink-0" />
-              <span>{formatBytes(user.storage_used_bytes)}</span>
-              <div className="h-1.5 w-14 overflow-hidden rounded-sm bg-background/70">
-                <div
-                  className="h-full bg-brand-violet dark:bg-brand-lavender transition-all duration-300"
-                  style={{ width: `${quotaPct}%` }}
-                />
-              </div>
-              <span className="text-muted-foreground/80">{quotaPct}%</span>
-            </div>
+              <Puzzle className="h-3.5 w-3.5 text-[#6D28D9] dark:text-[#B794FF]" />
+              <span>Flow Ext</span>
+            </button>
           )}
 
-          <div className="hidden md:block">
-            <ThemeToggle variant="segmented" />
-          </div>
-          <div className="md:hidden">
-            <ThemeToggle variant="compact" />
+          <div className="rounded-xl border border-border bg-card/80 p-0.5">
+            <ThemeToggle variant="compact" className="h-8 w-8 rounded-lg" />
           </div>
 
           {user && (
-            <div className="flex items-center gap-2.5 pl-2.5 border-l border-border/60">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleOpenExtModal}
-                title="Connect Google Flow Chrome Extension"
-                className="h-8 gap-1.5 px-2.5 text-xs border-border/70"
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setAccountOpen((v) => !v)}
+                className="flex h-9 items-center gap-2 rounded-xl border border-border bg-card/90 pl-1.5 pr-2.5 text-left hover:border-brand-lavender/45 transition-colors"
               >
-                <Puzzle className="h-3.5 w-3.5 text-brand-violet dark:text-brand-lavender" />
-                <span className="hidden lg:inline">Flow Ext</span>
-              </Button>
-
-              <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-brand-violet/10 text-brand-violet dark:bg-brand-lavender/15 dark:text-brand-lavender text-xs font-semibold">
-                {initials}
-              </div>
-              <div className="hidden sm:flex flex-col items-start leading-none">
-                <span className="text-xs font-semibold text-foreground">
+                <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#6D28D9]/12 text-[#6D28D9] dark:bg-[#A970FF]/18 dark:text-[#C4B5FD] text-[11px] font-bold">
+                  {initials}
+                </span>
+                <span className="hidden md:inline text-xs font-semibold text-foreground max-w-[140px] truncate">
                   {user.name}
                 </span>
-                <span className="mt-0.5 text-[11px] text-muted-foreground">
-                  {user.email}
-                </span>
-              </div>
+                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+              </button>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => logout.mutate()}
-                title="Sign out"
-                aria-label="Sign out"
-                className="h-8 px-2.5 text-muted-foreground hover:text-foreground"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-                <span className="hidden md:inline text-xs">Sign out</span>
-              </Button>
+              {accountOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setAccountOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-2 z-20 w-64 rounded-2xl border border-border bg-popover p-2 shadow-xl space-y-1.5">
+                    <div className="px-2.5 py-2 border-b border-border/70">
+                      <div className="text-xs font-semibold text-foreground truncate">
+                        {user.name}
+                      </div>
+                      <div className="text-[11px] text-muted-foreground truncate">
+                        {user.email}
+                      </div>
+                    </div>
+
+                    <div className="px-2.5 py-2 space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                        <span className="inline-flex items-center gap-1.5">
+                          <HardDrive className="h-3 w-3 text-[#6D28D9] dark:text-[#B794FF]" />
+                          Storage
+                        </span>
+                        <span className="font-mono tabular-nums">
+                          {formatBytes(user.storage_used_bytes)} ({quotaPct}%)
+                        </span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+                        <div
+                          className="h-full rounded-full bg-[#6D28D9] dark:bg-[#A970FF]"
+                          style={{ width: `${quotaPct}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAccountOpen(false);
+                        handleOpenExtModal();
+                      }}
+                      className="sm:hidden flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-xs font-medium text-foreground hover:bg-secondary transition-colors"
+                    >
+                      <Puzzle className="h-3.5 w-3.5 text-[#6D28D9] dark:text-[#B794FF]" />
+                      Flow Extension
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAccountOpen(false);
+                        logout.mutate();
+                      }}
+                      className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      Sign out
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
